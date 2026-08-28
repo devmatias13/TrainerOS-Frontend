@@ -15,6 +15,13 @@
   flex-wrap: wrap;
 }
 
+@media (max-width: 767px) {
+  .dashboard__header {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+}
+
 .dashboard__header-left {
   flex: 1;
   min-width: 200px;
@@ -27,6 +34,10 @@
   color: var(--color-midnight-blue);
   letter-spacing: -0.01em;
   margin-bottom: 2px;
+}
+
+@media (max-width: 767px) {
+  .dashboard__greeting { font-size: 18px; }
 }
 
 .dashboard__sub {
@@ -98,6 +109,13 @@
   padding: var(--grid-margin);
 }
 
+@media (max-width: 767px) {
+  .dashboard__bento {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+}
+
 .bento-card {
   background: var(--color-surface-low);
   border: 1px solid var(--color-outline-var);
@@ -105,6 +123,10 @@
   padding: 20px;
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.2s;
+}
+
+@media (max-width: 767px) {
+  .bento-card { padding: 16px; }
 }
 
 .bento-card:hover {
@@ -129,6 +151,11 @@
 @media (max-width: 900px) {
   .bento-span-4, .bento-span-5,
   .bento-span-7, .bento-span-8  { grid-column: span 12; }
+}
+
+@media (max-width: 767px) {
+  .bento-span-4, .bento-span-5, .bento-span-7,
+  .bento-span-8, .bento-span-12 { grid-column: span 12; }
 }
 
 .bento-card__title {
@@ -189,6 +216,10 @@
   margin-top: 4px;
 }
 
+@media (max-width: 767px) {
+  .resumen__value { font-size: 32px; }
+}
+
 .resumen__active {
   font-family: var(--font-display);
   font-size: 36px;
@@ -198,9 +229,17 @@
   margin-top: 4px;
 }
 
+@media (max-width: 767px) {
+  .resumen__active { font-size: 28px; }
+}
+
 .resumen__ring {
   flex-shrink: 0;
   margin-left: 16px;
+}
+
+@media (max-width: 767px) {
+  .resumen__ring svg { width: 90px; height: 90px; }
 }
 
 /* Quick Actions */
@@ -252,6 +291,10 @@
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   transition: transform 0.1s;
+}
+
+@media (max-width: 767px) {
+  .heatmap__cell { width: 100%; height: 28px; flex: 1; }
 }
 .heatmap__cell:hover { transform: scale(1.15); cursor: pointer; }
 .heatmap__cell--sm { width: 14px; height: 14px; border-radius: 2px; }
@@ -307,6 +350,10 @@
 
 /* Recent Clients */
 .recent-clients { display: flex; gap: 14px; flex-wrap: wrap; }
+
+@media (max-width: 767px) {
+  .recent-clients { gap: 10px; }
+}
 
 .recent-client-card {
   display: flex;

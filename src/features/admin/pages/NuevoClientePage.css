@@ -16,6 +16,10 @@
   gap: 16px;
 }
 
+@media (max-width: 767px) {
+  .nuevo-cliente-form { padding: 12px 16px; gap: 12px; }
+}
+
 /* Form section card */
 .form-section {
   background: var(--color-surface-low);
@@ -63,6 +67,10 @@
 }
 @media (max-width: 900px) {
   .form-two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+  .form-two-col { grid-template-columns: 1fr; gap: 12px; }
 }
 
 /* Fields */
@@ -136,4 +144,18 @@ select.form-input { cursor: pointer; appearance: auto; }
   justify-content: flex-end;
   gap: 12px;
   padding-top: 8px;
+}
+
+/* On mobile: stack buttons full-width, primary on top (per mockup) */
+@media (max-width: 767px) {
+  .form-footer {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+  .form-footer .btn-primary,
+  .form-footer .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 16px;
+  }
 }

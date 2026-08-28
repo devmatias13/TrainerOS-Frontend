@@ -8,12 +8,23 @@
   gap: 12px;
 }
 
+@media (max-width: 767px) {
+  .page-header {
+    padding: 16px 16px 0;
+    gap: 10px;
+  }
+}
+
 .page-header__title {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 700;
   color: var(--color-midnight-blue);
   letter-spacing: -0.02em;
+}
+
+@media (max-width: 767px) {
+  .page-header__title { font-size: 22px; }
 }
 
 /* Shared button styles */
@@ -95,6 +106,14 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--bento-gap);
   padding: 16px 24px;
+}
+
+@media (max-width: 767px) {
+  .clientes-grid {
+    grid-template-columns: 1fr;
+    padding: 12px 16px;
+    gap: 10px;
+  }
 }
 
 /* Client Card */
