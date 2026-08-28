@@ -1,0 +1,139 @@
+/* ─── Nuevo Cliente Page ───────────────────────────────────────── */
+.nuevo-cliente-page {
+  padding-bottom: 60px;
+}
+
+.page-header--border {
+  border-bottom: 1px solid var(--color-outline-var);
+  padding-bottom: 20px;
+  margin-bottom: 0;
+}
+
+.nuevo-cliente-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Form section card */
+.form-section {
+  background: var(--color-surface-low);
+  border: 1px solid var(--color-outline-var);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.form-section__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-outline-var);
+}
+
+.form-section__icon {
+  color: var(--color-dusty-blue);
+}
+
+.form-section__title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-midnight-blue);
+}
+
+/* Grid layouts */
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+.form-grid--2 { grid-template-columns: 1fr 1fr; }
+.form-grid--1 { grid-template-columns: 1fr; }
+
+@media (max-width: 600px) {
+  .form-grid--2 { grid-template-columns: 1fr; }
+}
+
+.form-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .form-two-col { grid-template-columns: 1fr; }
+}
+
+/* Fields */
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-dusty-blue);
+  letter-spacing: 0.01em;
+}
+
+.form-input {
+  padding: 10px 12px;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-outline-var);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-on-surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.form-input::placeholder { color: var(--color-dusty-blue); opacity: 0.6; }
+.form-input:focus {
+  border-color: var(--color-midnight-blue);
+  box-shadow: 0 0 0 2px rgba(28, 46, 74, 0.12);
+}
+.form-input:hover:not(:focus) { border-color: var(--color-dusty-blue); }
+
+select.form-input { cursor: pointer; appearance: auto; }
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+/* Radio group */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-on-surface);
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-label input[type="radio"] {
+  accent-color: var(--color-midnight-blue);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.radio-custom { display: none; }
+
+/* Form footer */
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
