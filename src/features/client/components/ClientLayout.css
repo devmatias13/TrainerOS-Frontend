@@ -1,0 +1,9 @@
+/* ─── Client Layout Shell ──────────────────────────────────────────── */
+.client-layout {
+  min-height: 100dvh;
+  background: var(--color-deep-navy);
+  color: #ffffff;
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+}

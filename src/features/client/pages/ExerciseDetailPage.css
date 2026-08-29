@@ -1,0 +1,314 @@
+/* ─── Exercise Detail Page ─────────────────────────────────────────── */
+.exercise-detail-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-deep-navy);
+  color: #ffffff;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ── Video Area ── */
+.ed-video-area {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(160deg, #0c1e33 0%, #060f1b 100%);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ed-back-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.ed-back-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* Video placeholder */
+.ed-video-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ed-video-play-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.ed-video-play-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.06);
+}
+
+/* Timer badge */
+.ed-timer-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  transition: color 0.3s;
+}
+
+.ed-timer-badge--running {
+  color: #86efac;
+}
+
+.ed-timer-badge svg {
+  flex-shrink: 0;
+}
+
+/* ── Content ── */
+.ed-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Chips */
+.ed-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ed-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ed-chip--fuerza {
+  background: rgba(28, 46, 74, 0.8);
+  color: #b5c7ea;
+  border-color: rgba(28, 46, 74, 0.5);
+}
+
+.ed-chip--hipertrofia {
+  background: rgba(75, 96, 118, 0.4);
+  color: #a8bdd4;
+  border-color: rgba(75, 96, 118, 0.4);
+}
+
+.ed-chip--resistencia {
+  background: rgba(34, 197, 94, 0.15);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+/* Title & Meta */
+.ed-exercise-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.ed-meta {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: -8px 0 0;
+}
+
+.ed-meta__dot {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Sets progress dots */
+.ed-sets-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ed-set-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  transition: background 0.25s, border-color 0.25s;
+  flex-shrink: 0;
+}
+
+.ed-set-dot--done {
+  background: rgba(82, 103, 125, 0.85);
+  border-color: rgba(82, 103, 125, 0.85);
+}
+
+.ed-sets-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 4px;
+}
+
+/* Trainer Notes Card */
+.ed-notes-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.ed-notes-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ed-notes-card__dot {
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1;
+}
+
+.ed-notes-card__title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.ed-notes-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+}
+
+.ed-notes-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.ed-notes-item__icon {
+  flex-shrink: 0;
+  color: rgba(82, 103, 125, 0.9);
+  margin-top: 2px;
+}
+
+/* ── Sticky Footer ── */
+.ed-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  padding: 12px 16px 28px;
+  background: linear-gradient(to top, rgba(15, 26, 43, 1) 60%, transparent);
+}
+
+.ed-footer__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.ed-footer__btn--complete {
+  background: var(--color-midnight-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(28, 46, 74, 0.5);
+}
+
+.ed-footer__btn--complete:hover {
+  background: #243b5a;
+  transform: translateY(-1px);
+}
+
+.ed-footer__sets-badge {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ed-footer__btn--next {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #86efac;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ed-footer__btn--next:hover {
+  background: rgba(34, 197, 94, 0.22);
+  transform: translateY(-1px);
+}
+
+/* ── Desktop centering ── */
+@media (min-width: 520px) {
+  .exercise-detail-page {
+    border-left: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+}

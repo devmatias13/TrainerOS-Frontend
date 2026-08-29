@@ -1,0 +1,175 @@
+/* ─── Workout Session Page ─────────────────────────────────────────── */
+.workout-session-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-deep-navy);
+  color: #ffffff;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ── Header ── */
+.ws-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(15, 26, 43, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 0;
+}
+
+.ws-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px 10px;
+}
+
+.ws-header__back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.ws-header__back:hover { color: #ffffff; }
+
+.ws-header__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ws-header__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-header__date {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+/* Avatar */
+.ws-header__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-midnight-blue);
+  border: 2px solid rgba(82, 103, 125, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+/* Progress bar */
+.ws-header__progress-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 16px;
+}
+
+.ws-header__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-dusty-blue), var(--color-midnight-blue));
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ws-header__progress-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: right;
+  padding: 4px 16px 8px;
+  margin: 0;
+}
+
+/* ── Content ── */
+.ws-content {
+  flex: 1;
+  padding: 12px 16px 0;
+}
+
+.ws-exercises {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 100px; /* space for sticky footer */
+}
+
+/* ── Footer ── */
+.ws-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  padding: 12px 16px 28px;
+  background: linear-gradient(to top, rgba(15, 26, 43, 1) 60%, transparent);
+}
+
+.ws-footer__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ws-footer__btn--ready {
+  background: var(--color-midnight-blue);
+  border-color: var(--color-midnight-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(28, 46, 74, 0.5);
+  animation: pulse-ready 2.5s ease infinite;
+}
+
+@keyframes pulse-ready {
+  0%, 100% { box-shadow: 0 4px 20px rgba(28, 46, 74, 0.5); }
+  50% { box-shadow: 0 4px 28px rgba(28, 46, 74, 0.8); }
+}
+
+.ws-footer__btn--ready:hover {
+  background: #243b5a;
+  transform: translateY(-1px);
+}
+
+/* ── Desktop centering ── */
+@media (min-width: 520px) {
+  .workout-session-page {
+    border-left: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+}
