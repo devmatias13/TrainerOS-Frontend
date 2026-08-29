@@ -7,14 +7,16 @@ import {
   UserPlus,
   HelpCircle,
   LogOut,
+  Library,
 } from 'lucide-react'
 import './Sidebar.css'
 
 const navItems = [
-  { to: '/admin/dashboard',      icon: LayoutDashboard, label: 'Panel General' },
-  { to: '/admin/clientes',       icon: Users,           label: 'Clientes' },
-  { to: '/admin/entrenamientos', icon: Dumbbell,        label: 'Entrenamientos' },
-  { to: '/admin/finanzas',       icon: CreditCard,      label: 'Finanzas' },
+  { to: '/admin/dashboard',                   icon: LayoutDashboard, label: 'Panel General' },
+  { to: '/admin/clientes',                    icon: Users,           label: 'Clientes' },
+  { to: '/admin/entrenamientos',              icon: Dumbbell,        label: 'Workouts' },
+  { to: '/admin/entrenamientos/ejercicios',   icon: Library,         label: 'Exercise Bank' },
+  { to: '/admin/finanzas',                    icon: CreditCard,      label: 'Finanzas' },
 ]
 
 export default function Sidebar() {

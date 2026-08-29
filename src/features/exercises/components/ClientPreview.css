@@ -1,0 +1,150 @@
+/* ─── Client Preview Panel ─────────────────────────────────────────── */
+.client-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.client-preview__label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-on-surface-var);
+  text-transform: uppercase;
+}
+
+/* Card */
+.client-preview__card {
+  background: var(--color-midnight-blue);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-overlay);
+}
+
+/* Card Header */
+.client-preview__card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 12px;
+}
+
+.client-preview__exercise-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.client-preview__meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.client-preview__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: var(--font-body);
+}
+
+.client-preview__card-header .chip--navy {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+
+/* Media */
+.client-preview__media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0a1320;
+  overflow: hidden;
+  position: relative;
+}
+
+.client-preview__media iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.client-preview__media-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0d1f35 0%, #1a2e4a 100%);
+  gap: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+}
+
+.client-preview__media-placeholder--empty {
+  cursor: default;
+}
+
+.client-preview__play-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.client-preview__play-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* Instructions */
+.client-preview__instructions {
+  padding: 14px 16px 16px;
+  background: var(--color-midnight-blue);
+}
+
+.client-preview__instructions-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 10px;
+}
+
+.client-preview__instructions-list {
+  list-style: decimal;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.client-preview__instructions-list li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.8);
+  font-family: var(--font-body);
+}
+
+.client-preview__instructions-empty {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  font-style: italic;
+  font-family: var(--font-body);
+}
