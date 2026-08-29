@@ -4,7 +4,10 @@ import DashboardPage from '../features/admin/pages/DashboardPage'
 import ClientesPage from '../features/admin/pages/ClientesPage'
 import NuevoClientePage from '../features/admin/pages/NuevoClientePage'
 import EntrenamientosPage from '../features/admin/pages/EntrenamientosPage'
+import ArmarRutinaPage from '../features/admin/pages/ArmarRutinaPage'
 import FinanzasPage from '../features/admin/pages/FinanzasPage'
+import ExerciseBankPage from '../features/exercises/pages/ExerciseBankPage'
+import NuevoEjercicioPage from '../features/exercises/pages/NuevoEjercicioPage'
 
 const router = createBrowserRouter([
   {
@@ -16,11 +19,14 @@ const router = createBrowserRouter([
     element: <AdminLayout />,
     children: [
       { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-      { path: 'dashboard',       element: <DashboardPage /> },
-      { path: 'clientes',        element: <ClientesPage /> },
-      { path: 'clientes/nuevo',  element: <NuevoClientePage /> },
-      { path: 'entrenamientos',  element: <EntrenamientosPage /> },
-      { path: 'finanzas',        element: <FinanzasPage /> },
+      { path: 'dashboard',                            element: <DashboardPage /> },
+      { path: 'clientes',                             element: <ClientesPage /> },
+      { path: 'clientes/nuevo',                       element: <NuevoClientePage /> },
+      { path: 'entrenamientos',                       element: <EntrenamientosPage /> },
+      { path: 'entrenamientos/rutinas/nueva',         element: <ArmarRutinaPage /> },
+      { path: 'entrenamientos/ejercicios',            element: <ExerciseBankPage /> },
+      { path: 'entrenamientos/ejercicios/nuevo',      element: <NuevoEjercicioPage /> },
+      { path: 'finanzas',                             element: <FinanzasPage /> },
     ],
   },
 ])
