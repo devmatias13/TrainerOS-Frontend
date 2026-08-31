@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { User, CreditCard, Activity, Flag } from 'lucide-react'
+import { useCreateClient } from '../hooks/useClients'
 import './NuevoClientePage.css'
 
 interface FormState {
@@ -29,16 +30,37 @@ const INITIAL: FormState = {
 
 export default function NuevoClientePage() {
   const navigate = useNavigate()
+  const createClient = useCreateClient()
   const [form, setForm] = useState<FormState>(INITIAL)
 
   const set = (key: keyof FormState, val: string) =>
     setForm(prev => ({ ...prev, [key]: val }))
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    // TODO: conectar con API
-    console.log('Guardar cliente:', form)
-    navigate('/admin/clientes')
+    try {
+      await createClient.mutateAsync({
+        nombre: form.nombre.split(' ')[0] || form.nombre,
+        apellido: form.nombre.split(' ').slice(1).join(' ') || '',
+        email: form.email,
+        telefono: form.telefono || null,
+        fecha_nacimiento: form.fechaNacimiento || null,
+        plan_tier: form.tipoPlan as any,
+        fecha_inicio: form.fechaInicio || new Date().toISOString().split('T')[0],
+        estado_pago: form.estadoPago,
+        peso_inicial: form.peso ? parseFloat(form.peso) : null,
+        altura: form.altura ? parseFloat(form.altura) : null,
+        grasa_corporal: form.grasaCorporal ? parseFloat(form.grasaCorporal) : null,
+        experiencia: form.experiencia as any,
+        objetivo: form.objetivo || null,
+        historial_medico: form.historialMedico || null,
+        consideraciones: form.consideraciones || null,
+        trainer_id: '00000000-0000-0000-0000-000000000001', // TODO: replace with auth user id
+      })
+      navigate('/admin/clientes')
+    } catch (err) {
+      console.error('Error creating client:', err)
+    }
   }
 
   return (
@@ -270,8 +292,8 @@ export default function NuevoClientePage() {
           >
             Cancelar
           </button>
-          <button type="submit" className="btn-primary">
-            Guardar Cliente
+          <button type="submit" className="btn-primary" disabled={createClient.isPending}>
+            {createClient.isPending ? 'Guardando...' : 'Guardar Cliente'}
           </button>
         </div>
 

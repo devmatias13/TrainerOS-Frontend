@@ -1,8 +1,12 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Plus, Dumbbell } from 'lucide-react'
-import { MOCK_EXERCISES, MUSCLE_GROUPS, type MuscleGroup, type Exercise } from '../api/exercises.api'
+import { MUSCLE_GROUPS, type MuscleGroup } from '../api/exercises.api'
+import { useExercises } from '../hooks/useExercises'
+import type { Tables } from '../../../lib/supabase'
 import ExerciseCard from '../components/ExerciseCard'
+import LoadingSkeleton from '../../../components/LoadingSkeleton'
+import ErrorState from '../../../components/ErrorState'
 import './ExerciseBankPage.css'
 
 export default function ExerciseBankPage() {
@@ -10,21 +14,45 @@ export default function ExerciseBankPage() {
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<MuscleGroup | 'Todos'>('Todos')
 
-  const filtered = useMemo(() => {
-    return MOCK_EXERCISES.filter(ex => {
-      const matchesGroup =
-        activeFilter === 'Todos' || ex.grupoMuscular === activeFilter
-      const matchesSearch =
-        search.trim() === '' ||
-        ex.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        ex.grupoMuscular.toLowerCase().includes(search.toLowerCase())
-      return matchesGroup && matchesSearch
-    })
-  }, [search, activeFilter])
+  const muscleQuery = activeFilter === 'Todos' ? undefined : activeFilter
+  const { data: exercises = [], isLoading, error, refetch } = useExercises(muscleQuery)
 
-  const handleEdit = (ex: Exercise) => {
+  const filtered = useMemo(() => {
+    if (search.trim() === '') return exercises
+    const q = search.toLowerCase()
+    return exercises.filter(ex =>
+      ex.nombre.toLowerCase().includes(q) ||
+      ex.grupo_muscular.toLowerCase().includes(q)
+    )
+  }, [exercises, search])
+
+  const handleEdit = (ex: Tables<'exercises'>) => {
     // TODO: navegar a edición
     console.log('Edit:', ex)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="exercise-bank">
+        <div className="exercise-bank__header">
+          <div className="exercise-bank__header-left">
+            <div className="exercise-bank__title-row">
+              <Dumbbell size={22} strokeWidth={1.5} className="exercise-bank__title-icon" />
+              <h1 className="exercise-bank__title">Banco de Ejercicios</h1>
+            </div>
+          </div>
+        </div>
+        <LoadingSkeleton count={6} variant="card" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="exercise-bank">
+        <ErrorState message={error.message} onRetry={() => refetch()} />
+      </div>
+    )
   }
 
   return (
@@ -37,7 +65,7 @@ export default function ExerciseBankPage() {
             <h1 className="exercise-bank__title">Banco de Ejercicios</h1>
           </div>
           <p className="exercise-bank__subtitle">
-            {MOCK_EXERCISES.length} ejercicios en tu biblioteca
+            {exercises.length} ejercicios en tu biblioteca
           </p>
         </div>
         <button

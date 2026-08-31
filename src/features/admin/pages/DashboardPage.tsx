@@ -1,5 +1,14 @@
-import { Copy, UserPlus, Plus, CalendarPlus, MoreHorizontal } from 'lucide-react'
+import { useState } from 'react'
+import { Copy, UserPlus, Plus, CalendarPlus, MoreHorizontal, Check } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import {
+  useDashboardStats,
+  useRecentClients,
+  useUpcomingSessions,
+  useActivityHeatmap,
+} from '../hooks/useDashboardStats'
+import LoadingSkeleton from '../../../components/LoadingSkeleton'
+import ErrorState from '../../../components/ErrorState'
 import './DashboardPage.css'
 
 /* ── Progress Ring SVG ─────────────────────────────────────────── */
@@ -46,28 +55,38 @@ function ProgressRing({ percent }: { percent: number }) {
 }
 
 /* ── Heatmap ────────────────────────────────────────────────────── */
-const HEATMAP_ROWS = 5
-const HEATMAP_COLS = 7
-function getIntensity() {
-  const levels = [0, 1, 2, 3]
-  return levels[Math.floor(Math.random() * levels.length)]
-}
-const heatmapData = Array.from({ length: HEATMAP_ROWS }, () =>
-  Array.from({ length: HEATMAP_COLS }, () => getIntensity())
-)
 const intensityBg = ['#e5e2dc', '#8496b7', '#4d6080', '#1C2E4A']
 
-function Heatmap() {
+function HeatmapGrid({ activityData }: { activityData: { date: string; count: number }[] }) {
+  // Build a 5x7 grid from the 30-35 days of data or default empty
+  const activityMap = new Map(activityData.map(d => [d.date, d.count]))
+  const days: number[] = []
+  
+  for (let i = 34; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    const dateKey = d.toISOString().split('T')[0]
+    const count = activityMap.get(dateKey) ?? 0
+    const level = count === 0 ? 0 : count <= 2 ? 1 : count <= 5 ? 2 : 3
+    days.push(level)
+  }
+
+  // Slice into 5 rows of 7
+  const rows: number[][] = []
+  for (let r = 0; r < 5; r++) {
+    rows.push(days.slice(r * 7, (r + 1) * 7))
+  }
+
   return (
     <div className="heatmap">
-      {heatmapData.map((row, ri) => (
+      {rows.map((row, ri) => (
         <div key={ri} className="heatmap__row">
           {row.map((lvl, ci) => (
             <div
               key={ci}
               className="heatmap__cell"
               style={{ background: intensityBg[lvl] }}
-              title={`Intensidad: ${lvl}`}
+              title={`Nivel de actividad: ${lvl}`}
             />
           ))}
         </div>
@@ -85,22 +104,49 @@ function Heatmap() {
   )
 }
 
-/* ── Clients recientes ─────────────────────────────────────────── */
-const recentClients = [
-  { initials: 'EJ', name: 'Emma Johnson',  color: '#BDC4D4' },
-  { initials: 'DL', name: 'David Lee',     color: '#8496b7' },
-  { initials: 'TC', name: 'Tom Cruise',    color: '#1C2E4A' },
-]
-
-/* ── Sessions próximas ─────────────────────────────────────────── */
-const nextSessions = [
-  { name: 'Sarah Jenkins', type: 'HIIT Circuit • 10:00 AM', badge: 'En 2 hs' },
-  { name: 'Mike Ross',     type: 'Strength Training • 1:00 PM', badge: 'Hoy' },
-]
+function getInitials(nombre: string, apellido?: string | null): string {
+  const first = nombre.charAt(0) || ''
+  const second = (apellido && apellido.charAt(0)) || ''
+  return (first + second).toUpperCase() || 'C'
+}
 
 /* ── Page ───────────────────────────────────────────────────────── */
 export default function DashboardPage() {
   const navigate = useNavigate()
+  const [copied, setCopied] = useState(false)
+
+  const { data: stats, isLoading: loadingStats, error: errorStats, refetch: refetchStats } = useDashboardStats()
+  const { data: recentClients = [], isLoading: loadingClients } = useRecentClients()
+  const { data: upcomingSessions = [], isLoading: loadingSessions } = useUpcomingSessions()
+  const { data: heatmapData = [] } = useActivityHeatmap()
+
+  const handleCopyLink = () => {
+    navigator.clipboard?.writeText(window.location.origin + '/alumno')
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (loadingStats) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard__header">
+          <h1 className="dashboard__greeting">Cargando estadísticas...</h1>
+        </div>
+        <LoadingSkeleton count={3} variant="card" />
+      </div>
+    )
+  }
+
+  if (errorStats) {
+    return (
+      <div className="dashboard">
+        <ErrorState message={errorStats.message} onRetry={() => refetchStats()} />
+      </div>
+    )
+  }
+
+  const clientCount = stats?.totalClients ?? 0
+  const monthlySessions = stats?.sessionsThisMonth ?? 0
 
   return (
     <div className="dashboard">
@@ -111,9 +157,9 @@ export default function DashboardPage() {
           <p className="dashboard__sub">Tu link de acceso para alumnos es:</p>
         </div>
         <div className="dashboard__link-chip">
-          <span>traineros.com/coach/unique-link</span>
-          <button className="dashboard__copy-btn" aria-label="Copiar link">
-            <Copy size={14} strokeWidth={1.5} />
+          <span>{window.location.host}/alumno</span>
+          <button className="dashboard__copy-btn" onClick={handleCopyLink} aria-label="Copiar link">
+            {copied ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={1.5} />}
           </button>
         </div>
         <div className="dashboard__topbar-actions">
@@ -130,13 +176,13 @@ export default function DashboardPage() {
         {/* ── Resumen Mensual ── */}
         <div className="bento-card bento-card--dark bento-span-8">
           <div className="resumen__data">
-            <p className="resumen__label">Ingresos Totales</p>
-            <p className="resumen__value">$24,500</p>
+            <p className="resumen__label">Sesiones este Mes</p>
+            <p className="resumen__value">{monthlySessions}</p>
             <p className="resumen__label resumen__label--mt">Alumnos Activos</p>
-            <p className="resumen__active">142</p>
+            <p className="resumen__active">{clientCount}</p>
           </div>
           <div className="resumen__ring">
-            <ProgressRing percent={82} />
+            <ProgressRing percent={Math.min(100, Math.round((clientCount / 20) * 100)) || 75} />
           </div>
         </div>
 
@@ -153,14 +199,17 @@ export default function DashboardPage() {
             </button>
             <button
               className="quick-action quick-action--secondary"
-              onClick={() => navigate('/admin/entrenamientos')}
+              onClick={() => navigate('/admin/entrenamientos/rutinas/nueva')}
             >
               <Plus size={16} strokeWidth={1.5} />
               Crear Rutina
             </button>
-            <button className="quick-action quick-action--secondary">
+            <button
+              className="quick-action quick-action--secondary"
+              onClick={() => navigate('/admin/entrenamientos/ejercicios/nuevo')}
+            >
               <CalendarPlus size={16} strokeWidth={1.5} />
-              Registrar Sesión
+              Crear Ejercicio
             </button>
           </div>
         </div>
@@ -171,26 +220,35 @@ export default function DashboardPage() {
             <p className="bento-card__title">Check-ins de Clientes (30 Días)</p>
             <button className="bento-card__more"><MoreHorizontal size={16} strokeWidth={1.5} /></button>
           </div>
-          <Heatmap />
+          <HeatmapGrid activityData={heatmapData} />
         </div>
 
         {/* ── Próximas Sesiones ── */}
         <div className="bento-card bento-span-5">
           <div className="bento-card__header">
             <p className="bento-card__title">Próximas Sesiones</p>
-            <a href="#" className="bento-card__link">Ver Todo</a>
+            <span className="bento-card__link" onClick={() => navigate('/admin/entrenamientos')}>Ver Rutinas</span>
           </div>
           <div className="sessions">
-            {nextSessions.map((s, i) => (
-              <div key={i} className="session-item">
-                <div className="session-item__icon">🏋️</div>
-                <div className="session-item__info">
-                  <p className="session-item__name">{s.name}</p>
-                  <p className="session-item__type">{s.type}</p>
-                </div>
-                <span className="session-item__badge">{s.badge}</span>
-              </div>
-            ))}
+            {loadingSessions ? (
+              <p style={{ fontSize: 13, color: 'var(--color-dusty-blue)', padding: '12px 0' }}>Cargando sesiones...</p>
+            ) : upcomingSessions.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--color-dusty-blue)', padding: '12px 0' }}>No hay sesiones programadas.</p>
+            ) : (
+              upcomingSessions.map(s => {
+                const clientName = s.clients ? `${s.clients.nombre} ${s.clients.apellido}`.trim() : 'Alumno'
+                return (
+                  <div key={s.id} className="session-item">
+                    <div className="session-item__icon">🏋️</div>
+                    <div className="session-item__info">
+                      <p className="session-item__name">{clientName}</p>
+                      <p className="session-item__type">{s.nombre} • {s.fecha}</p>
+                    </div>
+                    <span className="session-item__badge">{s.status === 'completed' ? 'Hecha' : 'Pendiente'}</span>
+                  </div>
+                )
+              })
+            )}
           </div>
         </div>
 
@@ -201,14 +259,20 @@ export default function DashboardPage() {
             <a href="#" className="bento-card__link" onClick={e => { e.preventDefault(); navigate('/admin/clientes') }}>Ver Todos los Clientes</a>
           </div>
           <div className="recent-clients">
-            {recentClients.map((c, i) => (
-              <div key={i} className="recent-client-card">
-                <div className="recent-client-card__avatar" style={{ background: c.color }}>
-                  <span style={{ color: c.color === '#1C2E4A' ? '#fff' : '#1C2E4A' }}>{c.initials}</span>
+            {loadingClients ? (
+              <p style={{ fontSize: 13, color: 'var(--color-dusty-blue)', padding: '12px 0' }}>Cargando alumnos...</p>
+            ) : (
+              recentClients.map(c => (
+                <div key={c.id} className="recent-client-card" onClick={() => navigate('/admin/clientes')}>
+                  <div className="recent-client-card__avatar" style={{ background: 'var(--color-ivory)' }}>
+                    <span style={{ color: 'var(--color-midnight-blue)', fontWeight: 600 }}>
+                      {getInitials(c.nombre, c.apellido)}
+                    </span>
+                  </div>
+                  <p className="recent-client-card__name">{c.nombre} {c.apellido}</p>
                 </div>
-                <p className="recent-client-card__name">{c.name}</p>
-              </div>
-            ))}
+              ))
+            )}
             <div className="recent-client-card recent-client-card--add" onClick={() => navigate('/admin/clientes/nuevo')}>
               <div className="recent-client-card__avatar recent-client-card__avatar--add">
                 <Plus size={20} strokeWidth={1.5} />

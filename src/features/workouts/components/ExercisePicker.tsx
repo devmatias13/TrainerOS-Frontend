@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Search } from 'lucide-react'
-import { MOCK_EXERCISES, MUSCLE_GROUPS, type MuscleGroup, type Exercise } from '../../exercises/api/exercises.api'
+import { MUSCLE_GROUPS, type MuscleGroup } from '../../exercises/api/exercises.api'
+import { useExercises } from '../../exercises/hooks/useExercises'
+import type { Tables } from '../../../lib/supabase'
 import './ExercisePicker.css'
 
 interface ExercisePickerProps {
-  onAdd: (exercise: Exercise) => void
+  onAdd: (exercise: Tables<'exercises'>) => void
 }
 
 const FILTER_ALL = 'Todos'
@@ -14,14 +16,17 @@ export default function ExercisePicker({ onAdd }: ExercisePickerProps) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<FilterValue>(FILTER_ALL)
 
-  const filtered = MOCK_EXERCISES.filter(ex => {
-    const matchesGroup = filter === FILTER_ALL || ex.grupoMuscular === filter
-    const matchesSearch =
-      search.trim() === '' ||
-      ex.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      ex.grupoMuscular.toLowerCase().includes(search.toLowerCase())
-    return matchesGroup && matchesSearch
-  })
+  const muscleQuery = filter === FILTER_ALL ? undefined : filter
+  const { data: exercises = [] } = useExercises(muscleQuery)
+
+  const filtered = useMemo(() => {
+    if (search.trim() === '') return exercises
+    const q = search.toLowerCase()
+    return exercises.filter(ex =>
+      ex.nombre.toLowerCase().includes(q) ||
+      ex.grupo_muscular.toLowerCase().includes(q)
+    )
+  }, [exercises, search])
 
   const FILTERS: FilterValue[] = [FILTER_ALL, ...MUSCLE_GROUPS.slice(0, 5)]
 
@@ -75,8 +80,8 @@ function ExercisePickerItem({
   exercise,
   onAdd,
 }: {
-  exercise: Exercise
-  onAdd: (e: Exercise) => void
+  exercise: Tables<'exercises'>
+  onAdd: (e: Tables<'exercises'>) => void
 }) {
   return (
     <div
@@ -105,9 +110,9 @@ function ExercisePickerItem({
       <div className="ep-item__info">
         <span className="ep-item__name">{exercise.nombre}</span>
         <span className="ep-item__meta">
-          {exercise.grupoMuscular}
-          {exercise.gruposSecundarios?.length
-            ? `, ${exercise.gruposSecundarios.slice(0, 1).join(', ')}`
+          {exercise.grupo_muscular}
+          {exercise.grupos_secundarios?.length
+            ? `, ${exercise.grupos_secundarios.slice(0, 1).join(', ')}`
             : ''}
         </span>
       </div>
