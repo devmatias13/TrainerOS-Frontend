@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Dumbbell, Plus, ChevronRight, Clock, BarChart2 } from 'lucide-react'
-import { MOCK_ROUTINES, type Routine } from '../../../features/workouts/api/workouts.api'
+import { Dumbbell, Plus, ChevronRight, BarChart2 } from 'lucide-react'
+import { useRoutines, type RoutineRow } from '../../workouts/hooks/useRoutines'
 import ExerciseBankPage from '../../../features/exercises/pages/ExerciseBankPage'
+import LoadingSkeleton from '../../../components/LoadingSkeleton'
+import ErrorState from '../../../components/ErrorState'
 import './EntrenamientosPage.css'
 
 type Tab = 'rutinas' | 'ejercicios'
@@ -78,10 +80,27 @@ export default function EntrenamientosPage() {
 /* ── Rutinas Tab ── */
 function RutinasTab() {
   const navigate = useNavigate()
+  const { data: routines = [], isLoading, error, refetch } = useRoutines()
+
+  if (isLoading) {
+    return (
+      <div className="rutinas-tab">
+        <LoadingSkeleton count={3} variant="card" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rutinas-tab">
+        <ErrorState message={error.message} onRetry={() => refetch()} />
+      </div>
+    )
+  }
 
   return (
     <div className="rutinas-tab">
-      {MOCK_ROUTINES.length === 0 ? (
+      {routines.length === 0 ? (
         <div className="rutinas-tab__empty">
           <Dumbbell size={40} strokeWidth={1} opacity={0.3} />
           <p>Todavía no tenés rutinas creadas.</p>
@@ -94,34 +113,30 @@ function RutinasTab() {
           </button>
         </div>
       ) : (
-        <>
-          <div className="rutinas-tab__grid">
-            {MOCK_ROUTINES.map(r => (
-              <RoutineCard key={r.id} routine={r} />
-            ))}
+        <div className="rutinas-tab__grid">
+          {routines.map(r => (
+            <RoutineCard key={r.id} routine={r} />
+          ))}
 
-            {/* Add new card */}
-            <button
-              className="rutina-card rutina-card--add"
-              onClick={() => navigate('/admin/entrenamientos/rutinas/nueva')}
-              aria-label="Crear nueva rutina"
-            >
-              <div className="rutina-card__add-icon">
-                <Plus size={24} strokeWidth={1.5} />
-              </div>
-              <span className="rutina-card__add-label">Nueva Rutina</span>
-            </button>
-          </div>
-        </>
+          {/* Add new card */}
+          <button
+            className="rutina-card rutina-card--add"
+            onClick={() => navigate('/admin/entrenamientos/rutinas/nueva')}
+            aria-label="Crear nueva rutina"
+          >
+            <div className="rutina-card__add-icon">
+              <Plus size={24} strokeWidth={1.5} />
+            </div>
+            <span className="rutina-card__add-label">Nueva Rutina</span>
+          </button>
+        </div>
       )}
     </div>
   )
 }
 
-function RoutineCard({ routine }: { routine: Routine }) {
+function RoutineCard({ routine }: { routine: RoutineRow }) {
   const navigate = useNavigate()
-  const blocksCount = routine.blocks.length
-  const exCount = routine.blocks.reduce((s: number, b: Routine['blocks'][0]) => s + b.exercises.length, 0)
 
   return (
     <div className="rutina-card" role="article">
@@ -134,17 +149,9 @@ function RoutineCard({ routine }: { routine: Routine }) {
           {routine.dia && (
             <p className="rutina-card__dia">{routine.dia}</p>
           )}
-
-          <div className="rutina-card__stats">
-            <span className="rutina-card__stat">
-              <Dumbbell size={12} strokeWidth={1.5} />
-              {exCount > 0 ? `${exCount} ejercicios` : 'Sin ejercicios'}
-            </span>
-            <span className="rutina-card__stat">
-              <Clock size={12} strokeWidth={1.5} />
-              {exCount > 0 ? `${exCount * 4 + blocksCount * 2} min est.` : '—'}
-            </span>
-          </div>
+          {routine.descripcion && (
+            <p className="rutina-card__dia">{routine.descripcion}</p>
+          )}
         </div>
 
         <div className="rutina-card__actions">

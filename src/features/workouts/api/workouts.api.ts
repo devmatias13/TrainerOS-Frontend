@@ -1,11 +1,11 @@
-import type { Exercise } from '../../exercises/api/exercises.api'
+import type { Tables } from '../../../lib/supabase'
 
 // ─── Types ─────────────────────────────────────────────────────────
 export type BlockType = 'single' | 'superset'
 
 export interface BlockExercise {
   id: string          // unique within block
-  exercise: Exercise
+  exercise: Tables<'exercises'>
   sets: number
   reps: string        // e.g. "8-10" or "12"
   tempo?: string      // e.g. "2-0-1-0"

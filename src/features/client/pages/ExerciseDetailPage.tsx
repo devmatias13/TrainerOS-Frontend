@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MOCK_SESSIONS } from '../api/client.api'
+import { useWeightHistory } from '../hooks/useClientDashboard'
 import ExerciseHistoryChart from '../components/ExerciseHistoryChart'
 import './ExerciseDetailPage.css'
 
@@ -16,6 +17,11 @@ export default function ExerciseDetailPage() {
   const exercise = session.ejercicios.find(e => e.id === ejercicioId) ?? session.ejercicios[0]
   const exerciseIndex = session.ejercicios.findIndex(e => e.id === ejercicioId)
   const nextExercise = session.ejercicios[exerciseIndex + 1]
+
+  const { data: dbWeightHistory } = useWeightHistory(clienteId, exercise.ejercicioId)
+  const historyData = (dbWeightHistory && dbWeightHistory.length > 0)
+    ? dbWeightHistory.map(w => ({ fecha: w.fecha, kg: Number(w.kg) }))
+    : exercise.historialPesos
 
   // ── Rest Timer ──
   const [timerSecs, setTimerSecs] = useState(0)
@@ -161,7 +167,7 @@ export default function ExerciseDetailPage() {
 
         {/* History Chart */}
         <ExerciseHistoryChart
-          historial={exercise.historialPesos}
+          historial={historyData}
           label="Historial (Último mes)"
         />
 

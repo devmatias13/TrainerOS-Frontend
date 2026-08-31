@@ -2,6 +2,7 @@ import { useState, type FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Video } from 'lucide-react'
 import { MUSCLE_GROUPS, type MuscleGroup, type Difficulty } from '../api/exercises.api'
+import { useCreateExercise } from '../hooks/useExercises'
 import ClientPreview from '../components/ClientPreview'
 import './NuevoEjercicioPage.css'
 
@@ -25,6 +26,7 @@ const DIFFICULTIES: Difficulty[] = ['Principiante', 'Intermedio', 'Avanzado']
 
 export default function NuevoEjercicioPage() {
   const navigate = useNavigate()
+  const createExercise = useCreateExercise()
   const [form, setForm] = useState<FormState>(INITIAL)
 
   const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
@@ -36,15 +38,24 @@ export default function NuevoEjercicioPage() {
     .map(l => l.trim())
     .filter(Boolean)
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    const exercise = {
-      ...form,
-      instrucciones: previewInstructions,
-      id: `ex-${Date.now()}`,
+    try {
+      await createExercise.mutateAsync({
+        nombre: form.nombre,
+        grupo_muscular: form.grupoMuscular as any,
+        grupos_secundarios: [],
+        dificultad: form.dificultad as any,
+        instrucciones: previewInstructions,
+        video_url: form.videoUrl || null,
+        series_default: null,
+        duracion_estimada: null,
+        trainer_id: null, // Global exercise for now
+      })
+      navigate('/admin/entrenamientos/ejercicios')
+    } catch (err) {
+      console.error('Error creating exercise:', err)
     }
-    console.log('Guardar ejercicio:', exercise)
-    navigate('/admin/entrenamientos/ejercicios')
   }
 
   // Scroll to top on mount
@@ -85,13 +96,14 @@ export default function NuevoEjercicioPage() {
           id="btn-guardar-ejercicio-desktop"
           className="btn-primary nuevo-ejercicio__save-btn"
           onClick={handleSubmit}
+          disabled={createExercise.isPending}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
             <polyline points="17 21 17 13 7 13 7 21"/>
             <polyline points="7 3 7 8 15 8"/>
           </svg>
-          Guardar Ejercicio
+          {createExercise.isPending ? 'Guardando...' : 'Guardar Ejercicio'}
         </button>
       </div>
 
@@ -264,8 +276,9 @@ export default function NuevoEjercicioPage() {
           className="btn-primary nuevo-ejercicio__mobile-save"
           form="form-nuevo-ejercicio"
           type="submit"
+          disabled={createExercise.isPending}
         >
-          Guardar Ejercicio
+          {createExercise.isPending ? 'Guardando...' : 'Guardar Ejercicio'}
         </button>
       </div>
 

@@ -1,9 +1,9 @@
-import type { Exercise } from '../api/exercises.api'
+import type { Tables } from '../../../lib/supabase'
 import './ExerciseCard.css'
 
 interface ExerciseCardProps {
-  exercise: Exercise
-  onEdit?: (ex: Exercise) => void
+  exercise: Tables<'exercises'>
+  onEdit?: (ex: Tables<'exercises'>) => void
 }
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -28,7 +28,7 @@ export default function ExerciseCard({ exercise, onEdit }: ExerciseCardProps) {
     <div className="exercise-card">
       <div className="exercise-card__thumb">
         <span className="exercise-card__thumb-icon">
-          {MUSCLE_ICONS[exercise.grupoMuscular] ?? '🏋️'}
+          {MUSCLE_ICONS[exercise.grupo_muscular] ?? '🏋️'}
         </span>
       </div>
       <div className="exercise-card__body">
@@ -39,8 +39,8 @@ export default function ExerciseCard({ exercise, onEdit }: ExerciseCardProps) {
           </span>
         </div>
         <div className="exercise-card__meta">
-          <span className="chip chip--muscle">{exercise.grupoMuscular}</span>
-          {exercise.gruposSecundarios?.slice(0, 2).map(g => (
+          <span className="chip chip--muscle">{exercise.grupo_muscular}</span>
+          {exercise.grupos_secundarios?.slice(0, 2).map(g => (
             <span key={g} className="chip chip--muscle chip--secondary">{g}</span>
           ))}
         </div>

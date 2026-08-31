@@ -112,12 +112,12 @@ function ExerciseRow({
         <span className="block-ex-row__name">{exercise.nombre}</span>
         {blockExercise.tempo && (
           <span className="block-ex-row__detail">
-            {exercise.grupoMuscular}
+            {exercise.grupo_muscular}
             {blockExercise.tempo ? `, tempo ${blockExercise.tempo}` : ''}
           </span>
         )}
         {!blockExercise.tempo && (
-          <span className="block-ex-row__detail">{exercise.grupoMuscular}</span>
+          <span className="block-ex-row__detail">{exercise.grupo_muscular}</span>
         )}
       </div>
 

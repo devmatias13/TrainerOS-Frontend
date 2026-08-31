@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import type { Exercise } from '../../exercises/api/exercises.api'
+import type { Tables } from '../../../lib/supabase'
 import {
   type Block,
   type BlockExercise,
@@ -12,8 +12,8 @@ interface UseRoutineBuilderReturn {
   routineName: string
   setRoutineName: (name: string) => void
   blocks: Block[]
-  addBlock: (exercise: Exercise, type?: BlockType) => void
-  addExerciseToBlock: (blockId: string, exercise: Exercise) => void
+  addBlock: (exercise: Tables<'exercises'>, type?: BlockType) => void
+  addExerciseToBlock: (blockId: string, exercise: Tables<'exercises'>) => void
   removeBlock: (blockId: string) => void
   removeExerciseFromBlock: (blockId: string, exerciseId: string) => void
   updateSetsReps: (blockId: string, exerciseId: string, sets: number, reps: string) => void
@@ -27,7 +27,7 @@ export function useRoutineBuilder(initialName = ''): UseRoutineBuilderReturn {
   const [routineName, setRoutineName] = useState(initialName)
   const [blocks, setBlocks] = useState<Block[]>([])
 
-  const makeBlockExercise = (exercise: Exercise): BlockExercise => ({
+  const makeBlockExercise = (exercise: Tables<'exercises'>): BlockExercise => ({
     id: makeId(),
     exercise,
     sets: 3,
@@ -37,7 +37,7 @@ export function useRoutineBuilder(initialName = ''): UseRoutineBuilderReturn {
   })
 
   // Add a new standalone block with one exercise
-  const addBlock = useCallback((exercise: Exercise, type: BlockType = 'single') => {
+  const addBlock = useCallback((exercise: Tables<'exercises'>, type: BlockType = 'single') => {
     setBlocks(prev => {
       const label = makeBlockLabel(prev.length)
       const newBlock: Block = {
@@ -51,7 +51,7 @@ export function useRoutineBuilder(initialName = ''): UseRoutineBuilderReturn {
   }, [])
 
   // Add exercise to existing block (turns it into a superset)
-  const addExerciseToBlock = useCallback((blockId: string, exercise: Exercise) => {
+  const addExerciseToBlock = useCallback((blockId: string, exercise: Tables<'exercises'>) => {
     setBlocks(prev =>
       prev.map(b => {
         if (b.id !== blockId) return b

@@ -1,13 +1,49 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { MOCK_CLIENT, MOCK_SESSIONS } from '../api/client.api'
+import { useClientProfile, useClientSessions } from '../hooks/useClientDashboard'
 import './ClientDashboard.css'
 
 export default function ClientDashboard() {
   const { clienteId = 'cliente-001' } = useParams()
   const navigate = useNavigate()
 
-  const client = MOCK_CLIENT
-  const sessions = MOCK_SESSIONS
+  const { data: dbClient } = useClientProfile(clienteId)
+  const { data: dbSessions } = useClientSessions(clienteId)
+
+  const client = dbClient ? {
+    id: dbClient.id,
+    nombre: dbClient.nombre,
+    apellido: dbClient.apellido,
+    entrenadorNombre: 'Pablo Díaz',
+    semanaActual: dbClient.semana_actual,
+    totalSemanas: dbClient.total_semanas,
+    sesionesCompletadasSemana: 1,
+    totalSesionesSemana: 4,
+  } : MOCK_CLIENT
+
+  const sessions = (dbSessions && dbSessions.length > 0) ? dbSessions.map(s => ({
+    id: s.id,
+    clienteId: s.client_id,
+    nombre: s.nombre,
+    fecha: s.fecha,
+    status: s.status,
+    ejercicios: s.session_exercises.map(se => ({
+      id: se.id,
+      ejercicioId: se.exercise_id,
+      nombre: se.exercises?.nombre ?? 'Ejercicio',
+      grupoMuscular: se.exercises?.grupo_muscular ?? 'General',
+      categoria: (se.categoria ?? 'Hipertrofia') as any,
+      series: se.series,
+      reps: se.reps,
+      descanso: se.descanso,
+      pesoObjetivo: se.peso_objetivo ? Number(se.peso_objetivo) : undefined,
+      instrucciones: se.exercises?.instrucciones ?? [],
+      videoUrl: se.exercises?.video_url ?? undefined,
+      historialPesos: [],
+      setsCompletados: se.sets_completados,
+      pesoRegistrado: se.peso_registrado ? Number(se.peso_registrado) : undefined,
+    })),
+  })) : MOCK_SESSIONS
 
   // First pending session = today's workout
   const todaySession = sessions.find(s => s.status === 'pending') ?? sessions[0]

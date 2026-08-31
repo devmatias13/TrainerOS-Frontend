@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, X } from 'lucide-react'
 import { useRoutineBuilder } from '../../../features/workouts/hooks/useRoutineBuilder'
+import { useCreateRoutine } from '../../../features/workouts/hooks/useRoutines'
 import ExercisePicker from '../../../features/workouts/components/ExercisePicker'
 import RoutineBuilder from '../../../features/workouts/components/RoutineBuilder'
-import type { Exercise } from '../../../features/exercises/api/exercises.api'
+import type { Tables } from '../../../lib/supabase'
 import './ArmarRutinaPage.css'
 
 export default function ArmarRutinaPage() {
@@ -12,6 +13,8 @@ export default function ArmarRutinaPage() {
   const [routineTitle, setRoutineTitle] = useState('Nueva Rutina')
   const [isPickerOpen, setIsPickerOpen] = useState(false) // mobile drawer state
   const [pickerTargetBlockId, setPickerTargetBlockId] = useState<string | null>(null)
+
+  const createRoutine = useCreateRoutine()
 
   const {
     blocks,
@@ -24,7 +27,7 @@ export default function ArmarRutinaPage() {
     estimatedMinutes,
   } = useRoutineBuilder(routineTitle)
 
-  const handleAddFromPicker = (exercise: Exercise) => {
+  const handleAddFromPicker = (exercise: Tables<'exercises'>) => {
     if (pickerTargetBlockId) {
       addExerciseToBlock(pickerTargetBlockId, exercise)
     } else {
@@ -34,17 +37,27 @@ export default function ArmarRutinaPage() {
     setPickerTargetBlockId(null)
   }
 
-  const handleDropExercise = (exercise: Exercise) => {
+  const handleDropExercise = (exercise: Tables<'exercises'>) => {
     addBlock(exercise)
   }
 
-  const handleDropToBlock = (blockId: string, exercise: Exercise) => {
+  const handleDropToBlock = (blockId: string, exercise: Tables<'exercises'>) => {
     addExerciseToBlock(blockId, exercise)
   }
 
-  const handleFinalize = () => {
-    console.log('Finalizar rutina:', { routineTitle, blocks })
-    navigate('/admin/entrenamientos')
+  const handleFinalize = async () => {
+    try {
+      await createRoutine.mutateAsync({
+        nombre: routineTitle,
+        dia: null,
+        descripcion: `${totalExercises} ejercicios · ${estimatedMinutes} min est.`,
+        trainer_id: '00000000-0000-0000-0000-000000000001',
+      })
+      navigate('/admin/entrenamientos')
+    } catch (err) {
+      console.error('Error saving routine:', err)
+      navigate('/admin/entrenamientos')
+    }
   }
 
   return (

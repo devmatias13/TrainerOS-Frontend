@@ -2,12 +2,16 @@ import { useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CheckCheck } from 'lucide-react'
 import { MOCK_SESSIONS, MOCK_CLIENT, type SessionExercise } from '../api/client.api'
+import { useUpdateSessionProgress, useLogWeight } from '../hooks/useClientDashboard'
 import ExerciseSessionCard from '../components/ExerciseSessionCard'
 import './WorkoutSessionPage.css'
 
 export default function WorkoutSessionPage() {
   const { clienteId = 'cliente-001', sesionId = 'sesion-001' } = useParams()
   const navigate = useNavigate()
+
+  const updateProgress = useUpdateSessionProgress()
+  const logWeight = useLogWeight()
 
   const sessionData = MOCK_SESSIONS.find(s => s.id === sesionId) ?? MOCK_SESSIONS[0]
   const client = MOCK_CLIENT
@@ -26,10 +30,26 @@ export default function WorkoutSessionPage() {
       prev.map(ex => {
         if (ex.id !== exerciseId) return ex
         const newSets = Math.min(ex.setsCompletados + 1, ex.series)
+        // Fire mutation in background if valid UUID
+        if (exerciseId.includes('-') && exerciseId.length > 20) {
+          updateProgress.mutate({
+            id: exerciseId,
+            sessionId: sesionId,
+            sets_completados: newSets,
+            peso_registrado: kg,
+          })
+          logWeight.mutate({
+            client_id: clienteId,
+            exercise_id: ex.ejercicioId,
+            session_id: sesionId,
+            kg,
+            fecha: new Date().toISOString().split('T')[0],
+          })
+        }
         return { ...ex, setsCompletados: newSets, pesoRegistrado: kg }
       })
     )
-  }, [])
+  }, [clienteId, sesionId, updateProgress, logWeight])
 
   const handleFinalize = () => {
     navigate(`/alumno/${clienteId}`)

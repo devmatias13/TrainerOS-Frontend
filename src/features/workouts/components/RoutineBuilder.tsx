@@ -1,12 +1,12 @@
 import type { Block } from '../api/workouts.api'
-import type { Exercise } from '../../exercises/api/exercises.api'
+import type { Tables } from '../../../lib/supabase'
 import BlockCard from './BlockCard'
 import './RoutineBuilder.css'
 
 interface RoutineBuilderProps {
   blocks: Block[]
-  onDropExercise: (exercise: Exercise) => void
-  onDropExerciseToBlock: (blockId: string, exercise: Exercise) => void
+  onDropExercise: (exercise: Tables<'exercises'>) => void
+  onDropExerciseToBlock: (blockId: string, exercise: Tables<'exercises'>) => void
   onRemoveBlock: (blockId: string) => void
   onRemoveExercise: (blockId: string, exerciseId: string) => void
   onUpdateSetsReps: (blockId: string, exerciseId: string, sets: number, reps: string) => void
@@ -36,7 +36,7 @@ export default function RoutineBuilder({
     e.preventDefault()
     try {
       const data = e.dataTransfer.getData('application/json')
-      const exercise: Exercise = JSON.parse(data)
+      const exercise: Tables<'exercises'> = JSON.parse(data)
       onDropExercise(exercise)
     } catch {
       /* ignore */
@@ -48,7 +48,7 @@ export default function RoutineBuilder({
     e.stopPropagation()
     try {
       const data = e.dataTransfer.getData('application/json')
-      const exercise: Exercise = JSON.parse(data)
+      const exercise: Tables<'exercises'> = JSON.parse(data)
       onDropExerciseToBlock(blockId, exercise)
     } catch {
       /* ignore */

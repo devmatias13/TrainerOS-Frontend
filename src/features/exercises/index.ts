@@ -5,3 +5,17 @@ export { default as ExerciseCard }        from './components/ExerciseCard'
 export { default as ClientPreview }       from './components/ClientPreview'
 export type { Exercise, MuscleGroup, Difficulty } from './api/exercises.api'
 export { MOCK_EXERCISES, MUSCLE_GROUPS }  from './api/exercises.api'
+export {
+  useExercises,
+  useExercise,
+  useCreateExercise,
+  useUpdateExercise,
+  useDeleteExercise,
+} from './hooks/useExercises'
+export type {
+  ExerciseRow,
+  ExerciseInsert,
+  ExerciseUpdate,
+  UpdateExerciseInput,
+} from './hooks/useExercises'
+
