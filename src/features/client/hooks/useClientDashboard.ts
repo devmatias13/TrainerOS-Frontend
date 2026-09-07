@@ -144,9 +144,14 @@ export function useUpdateSessionProgress() {
   return useMutation({
     mutationFn: async ({
       id,
-      sessionId: _sessionId,
-      ...updates
+      ...rest
     }: UpdateSessionProgressInput): Promise<SessionExerciseRow> => {
+      const updates: SessionExerciseUpdate = {
+        sets_completados: rest.sets_completados,
+        peso_registrado: rest.peso_registrado,
+        notes: rest.notes,
+      }
+
       const { data, error } = await supabase
         .from('session_exercises')
         .update(updates)

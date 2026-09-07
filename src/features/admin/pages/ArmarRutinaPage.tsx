@@ -77,9 +77,10 @@ export default function ArmarRutinaPage() {
         trainer_id: user.id, // Authenticated trainer ID
       })
       navigate('/admin/entrenamientos')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving routine:', err)
-      setValidationError(err?.message || 'Error al guardar la rutina en la base de datos.')
+      const message = err instanceof Error ? err.message : String(err)
+      setValidationError(message || 'Error al guardar la rutina en la base de datos.')
     }
   }
 

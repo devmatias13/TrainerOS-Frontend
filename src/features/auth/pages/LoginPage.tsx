@@ -55,7 +55,8 @@ export default function LoginPage() {
   const [serverError, setServerError] = useState<string | null>(null)
   const [successNotice, setSuccessNotice] = useState<string | null>(null)
 
-  const redirectPath = (location.state as any)?.from?.pathname || '/admin/dashboard'
+  const locState = location.state as { from?: { pathname?: string } } | null
+  const redirectPath = locState?.from?.pathname ?? '/admin/dashboard'
 
   // ── Validation logic ────────────────────────────────────────────────
   const validate = (data: FormFields, currentMode: AuthMode): FormErrors => {
@@ -188,9 +189,9 @@ export default function LoginPage() {
           navigate(redirectPath, { replace: true })
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Auth error:', err)
-      const rawMsg = err?.message || ''
+      const rawMsg = err instanceof Error ? err.message : String(err)
       if (rawMsg.includes('Invalid login credentials')) {
         setServerError('Correo o contraseña incorrectos. Verifica tus datos.')
       } else if (rawMsg.includes('User already registered') || rawMsg.includes('already exists')) {

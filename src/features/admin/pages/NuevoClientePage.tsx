@@ -10,7 +10,7 @@ interface FormState {
   email: string
   telefono: string
   fechaNacimiento: string
-  tipoPlan: string
+  tipoPlan: 'basico' | 'estandar' | 'premium' | 'personalizado'
   fechaInicio: string
   estadoPago: 'pagado' | 'pendiente'
   peso: string
@@ -100,7 +100,7 @@ export default function NuevoClientePage() {
     return errs
   }
 
-  const set = (key: keyof FormState, val: any) => {
+  const set = <K extends keyof FormState>(key: K, val: FormState[K]) => {
     setForm(prev => {
       const updated = { ...prev, [key]: val }
       if (touched[key]) {
@@ -153,7 +153,7 @@ export default function NuevoClientePage() {
         email: form.email.trim().toLowerCase(),
         telefono: form.telefono.trim() || null,
         fecha_nacimiento: form.fechaNacimiento || null,
-        plan_tier: form.tipoPlan as any,
+        plan_tier: form.tipoPlan,
         fecha_inicio: form.fechaInicio || new Date().toISOString().split('T')[0],
         estado_pago: form.estadoPago,
         peso_inicial: form.peso ? parseFloat(form.peso) : null,
@@ -166,9 +166,10 @@ export default function NuevoClientePage() {
         trainer_id: user.id, // Authenticated trainer ID
       })
       navigate('/admin/clientes')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating client:', err)
-      setSubmitError(err?.message || 'Error al guardar el cliente en Supabase.')
+      const message = err instanceof Error ? err.message : String(err)
+      setSubmitError(message || 'Error al guardar el cliente en Supabase.')
     }
   }
 
@@ -286,7 +287,7 @@ export default function NuevoClientePage() {
                 id="tipoPlan"
                 className="form-input"
                 value={form.tipoPlan}
-                onChange={e => set('tipoPlan', e.target.value)}
+                onChange={e => set('tipoPlan', e.target.value as FormState['tipoPlan'])}
               >
                 <option value="basico">Básico (1 vez/semana)</option>
                 <option value="estandar">Estándar (3 veces/semana)</option>
@@ -394,7 +395,7 @@ export default function NuevoClientePage() {
                   id="experiencia"
                   className="form-input"
                   value={form.experiencia}
-                  onChange={e => set('experiencia', e.target.value)}
+                  onChange={e => set('experiencia', e.target.value as FormState['experiencia'])}
                 >
                   <option value="principiante">Principiante</option>
                   <option value="intermedio">Intermedio</option>

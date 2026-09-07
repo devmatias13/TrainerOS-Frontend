@@ -101,9 +101,9 @@ export default function NuevoEjercicioPage() {
     try {
       await createExercise.mutateAsync({
         nombre: form.nombre.trim(),
-        grupo_muscular: form.grupoMuscular as any,
+        grupo_muscular: form.grupoMuscular as MuscleGroup,
         grupos_secundarios: [],
-        dificultad: form.dificultad as any,
+        dificultad: form.dificultad as Difficulty,
         instrucciones: previewInstructions,
         video_url: form.videoUrl.trim() || null,
         series_default: null,
@@ -111,9 +111,10 @@ export default function NuevoEjercicioPage() {
         trainer_id: user.id, // Strictly private to this trainer
       })
       navigate('/admin/entrenamientos/ejercicios')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error creating exercise:', err)
-      setSubmitError(err?.message || 'Error al guardar el ejercicio en Supabase.')
+      const message = err instanceof Error ? err.message : String(err)
+      setSubmitError(message || 'Error al guardar el ejercicio en Supabase.')
     }
   }
 
