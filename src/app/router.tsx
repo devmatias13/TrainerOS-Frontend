@@ -49,7 +49,7 @@ const router = createBrowserRouter([
     path: '/alumno',
     element: <ClientLayout />,
     children: [
-      { index: true, element: <Navigate to="/alumno/cliente-001" replace /> },
+      { index: true, element: <Navigate to="/login" replace /> },
       {
         path: ':clienteId',
         element: <ClientDashboard />,

@@ -504,6 +504,42 @@ export type Database = {
           },
         ]
       }
+      client_routines: {
+        Row: {
+          id: string
+          client_id: string
+          routine_id: string
+          assigned_at: string
+        }
+        Insert: {
+          id?: string
+          client_id: string
+          routine_id: string
+          assigned_at?: string
+        }
+        Update: {
+          id?: string
+          client_id?: string
+          routine_id?: string
+          assigned_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'client_routines_client_id_fkey'
+            columns: ['client_id']
+            isOneToOne: false
+            referencedRelation: 'clients'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'client_routines_routine_id_fkey'
+            columns: ['routine_id']
+            isOneToOne: false
+            referencedRelation: 'routines'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

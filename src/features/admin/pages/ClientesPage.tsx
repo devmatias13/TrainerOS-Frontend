@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserPlus, UserCircle, FileText, MessageSquare, Pencil, Trash2, AlertCircle } from 'lucide-react'
+import { UserPlus, UserCircle, Pencil, Trash2, AlertCircle, Link2 } from 'lucide-react'
 import { useClients, useDeleteClient, type ClientRow } from '../hooks/useClients'
 import LoadingSkeleton from '../../../components/LoadingSkeleton'
 import ErrorState from '../../../components/ErrorState'
@@ -41,6 +41,16 @@ export default function ClientesPage() {
 
   const { data: clients = [], isLoading, error, refetch } = useClients(activeTab)
   const deleteClient = useDeleteClient()
+  const [copiedClientId, setCopiedClientId] = useState<string | null>(null)
+
+  const handleCopyClientLink = (clientId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const link = `${window.location.origin}/alumno/${clientId}`
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedClientId(clientId)
+      setTimeout(() => setCopiedClientId(null), 2000)
+    })
+  }
 
   const handleDeleteClient = async () => {
     if (!clientToDelete) return
@@ -185,14 +195,13 @@ export default function ClientesPage() {
                 >
                   <Trash2 size={15} strokeWidth={1.5} />
                 </button>
-                <button className="icon-action-btn" title="Ver perfil">
-                  <UserCircle size={16} strokeWidth={1.5} />
-                </button>
-                <button className="icon-action-btn" title="Ver rutina">
-                  <FileText size={16} strokeWidth={1.5} />
-                </button>
-                <button className="icon-action-btn" title="Mensaje">
-                  <MessageSquare size={16} strokeWidth={1.5} />
+                <button
+                  className={`icon-action-btn${copiedClientId === client.id ? ' icon-action-btn--copied' : ''}`}
+                  title={copiedClientId === client.id ? '¡Copiado!' : 'Copiar link del alumno'}
+                  onClick={e => handleCopyClientLink(client.id, e)}
+                  aria-label="Copiar link del alumno"
+                >
+                  <Link2 size={15} strokeWidth={1.5} />
                 </button>
               </div>
             </div>

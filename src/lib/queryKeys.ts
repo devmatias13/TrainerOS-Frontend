@@ -41,3 +41,9 @@ export const dashboardKeys = {
   upcomingSessions: () => [...dashboardKeys.all, 'upcoming-sessions'] as const,
   heatmap: () => [...dashboardKeys.all, 'heatmap'] as const,
 }
+
+export const clientRoutineKeys = {
+  all: ['client-routines'] as const,
+  byClient: (clientId: string) =>
+    [...clientRoutineKeys.all, 'client', clientId] as const,
+}

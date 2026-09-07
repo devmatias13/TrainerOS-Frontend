@@ -1,11 +1,13 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { User, CreditCard, Activity, Flag, AlertCircle, ArrowLeft, Trash2 } from 'lucide-react'
+import { User, CreditCard, Activity, Flag, AlertCircle, ArrowLeft, Trash2, Dumbbell, Link2, X, Plus } from 'lucide-react'
 import { useCreateClient, useUpdateClient, useDeleteClient, useClient } from '../hooks/useClients'
+import { useClientRoutines, useUnassignRoutine } from '../hooks/useClientRoutines'
 import { useAuth } from '../../auth'
 import ConfirmModal from '../../../components/ConfirmModal'
 import LoadingSkeleton from '../../../components/LoadingSkeleton'
 import ErrorState from '../../../components/ErrorState'
+import AssignRoutineModal from '../components/AssignRoutineModal'
 import './NuevoClientePage.css'
 
 interface FormState {
@@ -67,6 +69,30 @@ export default function NuevoClientePage() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showAssignModal, setShowAssignModal] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+
+  const { data: assignedRoutines = [], isLoading: loadingAssigned } = useClientRoutines(id ?? '')
+  const unassignRoutine = useUnassignRoutine()
+
+  const clientLink = id ? `${window.location.origin}/alumno/${id}` : ''
+
+  const handleCopyLink = () => {
+    if (!clientLink) return
+    navigator.clipboard.writeText(clientLink).then(() => {
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 2000)
+    })
+  }
+
+  const handleUnassign = async (routineId: string) => {
+    if (!id) return
+    try {
+      await unassignRoutine.mutateAsync({ clientId: id, routineId })
+    } catch (err) {
+      console.error('Error unassigning routine:', err)
+    }
+  }
 
   // Pre-fill form when editing an existing client
   useEffect(() => {
@@ -610,6 +636,80 @@ export default function NuevoClientePage() {
 
       </form>
 
+      {/* ── Rutinas Asignadas (solo en modo edición) ── */}
+      {isEdit && id && existingClient && (
+        <div className="form-section" style={{ margin: '0 24px 24px', borderTop: '1px solid var(--color-outline-var)', paddingTop: '24px' }}>
+
+          {/* Link del Alumno */}
+          <div className="assigned-routines__link-panel">
+            <div className="assigned-routines__link-info">
+              <Link2 size={15} strokeWidth={2} />
+              <span className="assigned-routines__link-label">Link personal del alumno</span>
+            </div>
+            <div className="assigned-routines__link-row">
+              <code className="assigned-routines__link-url">/alumno/{id}</code>
+              <button
+                type="button"
+                className={`assigned-routines__link-copy${linkCopied ? ' assigned-routines__link-copy--copied' : ''}`}
+                onClick={handleCopyLink}
+                title="Copiar link"
+              >
+                {linkCopied ? '✓ Copiado' : 'Copiar Link'}
+              </button>
+            </div>
+          </div>
+
+          {/* Encabezado sección rutinas */}
+          <div className="form-section__heading" style={{ marginTop: '20px' }}>
+            <Dumbbell size={18} strokeWidth={1.5} className="form-section__icon" />
+            <h2 className="form-section__title">Rutinas Asignadas</h2>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{ marginLeft: 'auto', padding: '7px 14px', fontSize: '13px' }}
+              onClick={() => setShowAssignModal(true)}
+            >
+              <Plus size={13} strokeWidth={2} />
+              Asignar Rutina
+            </button>
+          </div>
+
+          {/* Lista de rutinas asignadas */}
+          {loadingAssigned ? (
+            <LoadingSkeleton count={2} variant="card" />
+          ) : assignedRoutines.length === 0 ? (
+            <div className="assigned-routines__empty">
+              <Dumbbell size={28} opacity={0.3} strokeWidth={1} />
+              <p>Este cliente no tiene rutinas asignadas aún.</p>
+            </div>
+          ) : (
+            <div className="assigned-routines__list">
+              {assignedRoutines.map(ar => (
+                <div key={ar.id} className="assigned-routine-item">
+                  <div className="assigned-routine-item__info">
+                    <span className="assigned-routine-item__name">
+                      {ar.routines?.nombre ?? 'Rutina'}
+                    </span>
+                    {ar.routines?.dia && (
+                      <span className="assigned-routine-item__day">{ar.routines.dia}</span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="assigned-routine-item__remove"
+                    onClick={() => handleUnassign(ar.routine_id)}
+                    title="Quitar rutina"
+                    aria-label={`Quitar ${ar.routines?.nombre ?? 'rutina'}`}
+                  >
+                    <X size={14} strokeWidth={2} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Modal de confirmación para eliminar cliente */}
       <ConfirmModal
         isOpen={showDeleteModal}
@@ -632,6 +732,16 @@ export default function NuevoClientePage() {
           )
         }
       />
+
+      {/* Modal para asignar rutinas */}
+      {isEdit && id && existingClient && (
+        <AssignRoutineModal
+          isOpen={showAssignModal}
+          clientId={id}
+          clientName={`${existingClient.nombre} ${existingClient.apellido}`}
+          onClose={() => setShowAssignModal(false)}
+        />
+      )}
     </div>
   )
 }
