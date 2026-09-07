@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Dumbbell, Plus, ChevronRight, BarChart2 } from 'lucide-react'
-import { useRoutines, type RoutineRow } from '../../workouts/hooks/useRoutines'
+import { Dumbbell, Plus, ChevronRight, Trash2 } from 'lucide-react'
+import { useRoutines, useDeleteRoutine, type RoutineRow } from '../../workouts/hooks/useRoutines'
 import ExerciseBankPage from '../../../features/exercises/pages/ExerciseBankPage'
 import LoadingSkeleton from '../../../components/LoadingSkeleton'
 import ErrorState from '../../../components/ErrorState'
+import ConfirmModal from '../../../components/ConfirmModal'
 import './EntrenamientosPage.css'
 
 type Tab = 'rutinas' | 'ejercicios'
@@ -63,8 +64,7 @@ export default function EntrenamientosPage() {
           className={`entrenamientos__tab${activeTab === 'ejercicios' ? ' entrenamientos__tab--active' : ''}`}
           onClick={() => setActiveTab('ejercicios')}
         >
-          <BarChart2 size={15} strokeWidth={1.5} />
-          Ejercicios
+          Banco de Ejercicios
         </button>
       </div>
 
@@ -81,6 +81,18 @@ export default function EntrenamientosPage() {
 function RutinasTab() {
   const navigate = useNavigate()
   const { data: routines = [], isLoading, error, refetch } = useRoutines()
+  const deleteRoutine = useDeleteRoutine()
+  const [routineToDelete, setRoutineToDelete] = useState<RoutineRow | null>(null)
+
+  const handleDeleteRoutine = async () => {
+    if (!routineToDelete) return
+    try {
+      await deleteRoutine.mutateAsync(routineToDelete.id)
+      setRoutineToDelete(null)
+    } catch (err) {
+      console.error('Error al eliminar rutina:', err)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -115,7 +127,11 @@ function RutinasTab() {
       ) : (
         <div className="rutinas-tab__grid">
           {routines.map(r => (
-            <RoutineCard key={r.id} routine={r} />
+            <RoutineCard
+              key={r.id}
+              routine={r}
+              onDelete={() => setRoutineToDelete(r)}
+            />
           ))}
 
           {/* Add new card */}
@@ -131,11 +147,37 @@ function RutinasTab() {
           </button>
         </div>
       )}
+
+      {/* Modal de confirmación para eliminar rutina */}
+      <ConfirmModal
+        isOpen={Boolean(routineToDelete)}
+        title="Eliminar Rutina"
+        variant="danger"
+        confirmText="Eliminar Rutina"
+        cancelText="Cancelar"
+        isLoading={deleteRoutine.isPending}
+        onConfirm={handleDeleteRoutine}
+        onClose={() => setRoutineToDelete(null)}
+        description={
+          routineToDelete ? (
+            <p>
+              ¿Estás seguro de que deseas eliminar permanentemente la rutina{' '}
+              <strong>"{routineToDelete.nombre}"</strong>? Esta acción no se puede deshacer y eliminará sus bloques y ejercicios asociados.
+            </p>
+          ) : null
+        }
+      />
     </div>
   )
 }
 
-function RoutineCard({ routine }: { routine: RoutineRow }) {
+function RoutineCard({
+  routine,
+  onDelete,
+}: {
+  routine: RoutineRow
+  onDelete: () => void
+}) {
   const navigate = useNavigate()
 
   return (
@@ -155,6 +197,17 @@ function RoutineCard({ routine }: { routine: RoutineRow }) {
         </div>
 
         <div className="rutina-card__actions">
+          <button
+            className="rutina-card__delete-btn"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete()
+            }}
+            title={`Eliminar ${routine.nombre}`}
+            aria-label={`Eliminar ${routine.nombre}`}
+          >
+            <Trash2 size={15} strokeWidth={1.5} />
+          </button>
           <button
             className="rutina-card__edit-btn"
             onClick={() => navigate('/admin/entrenamientos/rutinas/nueva')}
