@@ -36,6 +36,7 @@ const router = createBrowserRouter([
       { path: 'dashboard',                            element: <DashboardPage /> },
       { path: 'clientes',                             element: <ClientesPage /> },
       { path: 'clientes/nuevo',                       element: <NuevoClientePage /> },
+      { path: 'clientes/:id/editar',                  element: <NuevoClientePage /> },
       { path: 'entrenamientos',                       element: <EntrenamientosPage /> },
       { path: 'entrenamientos/rutinas/nueva',         element: <ArmarRutinaPage /> },
       { path: 'entrenamientos/ejercicios',            element: <ExerciseBankPage /> },
@@ -48,10 +49,18 @@ const router = createBrowserRouter([
     path: '/alumno',
     element: <ClientLayout />,
     children: [
-      { index: true, element: <Navigate to="/alumno/cliente-001" replace /> },
+      { index: true, element: <Navigate to="/login" replace /> },
       {
         path: ':clienteId',
         element: <ClientDashboard />,
+      },
+      {
+        path: ':clienteId/rutina/:rutinaId',
+        element: <WorkoutSessionPage />,
+      },
+      {
+        path: ':clienteId/rutina/:rutinaId/ejercicio/:ejercicioId',
+        element: <ExerciseDetailPage />,
       },
       {
         path: ':clienteId/sesion/:sesionId',

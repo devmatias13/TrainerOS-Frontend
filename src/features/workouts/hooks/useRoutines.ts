@@ -109,6 +109,88 @@ export function useCreateRoutine() {
   })
 }
 
+export type FullRoutineInsert = RoutineInsert & {
+  blocks: {
+    label: string
+    type: 'single' | 'superset'
+    order_index: number
+    exercises: {
+      exercise_id: string
+      sets: number
+      reps: string
+      order_index: number
+    }[]
+  }[]
+}
+
+/**
+ * Mutation hook to create a new routine along with its blocks and exercises.
+ */
+export function useCreateFullRoutine() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (payload: FullRoutineInsert): Promise<RoutineRow> => {
+      const { blocks, ...newRoutine } = payload
+      
+      // 1. Create Routine
+      const { data: routine, error: routineError } = await supabase
+        .from('routines')
+        .insert(newRoutine)
+        .select()
+        .single()
+
+      if (routineError) throw routineError
+
+      // 2. Create Blocks
+      if (blocks && blocks.length > 0) {
+        const blocksToInsert = blocks.map(b => ({
+          routine_id: routine.id,
+          label: b.label,
+          type: b.type,
+          order_index: b.order_index,
+        }))
+
+        const { data: insertedBlocks, error: blocksError } = await supabase
+          .from('routine_blocks')
+          .insert(blocksToInsert)
+          .select()
+
+        if (blocksError) throw blocksError
+
+        // 3. Create Exercises
+        const exercisesToInsert: InsertTables<'routine_block_exercises'>[] = []
+        
+        insertedBlocks.forEach((insertedBlock, i) => {
+          const originalBlock = blocks[i]
+          originalBlock.exercises.forEach(ex => {
+            exercisesToInsert.push({
+              block_id: insertedBlock.id,
+              exercise_id: ex.exercise_id,
+              sets: ex.sets,
+              reps: ex.reps,
+              order_index: ex.order_index,
+            })
+          })
+        })
+
+        if (exercisesToInsert.length > 0) {
+          const { error: exercisesError } = await supabase
+            .from('routine_block_exercises')
+            .insert(exercisesToInsert)
+          
+          if (exercisesError) throw exercisesError
+        }
+      }
+
+      return routine
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: routineKeys.all })
+    },
+  })
+}
+
 /**
  * Mutation hook to delete a routine by ID.
  * Invalidates all routine queries on success.

@@ -1,27 +1,78 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { MOCK_SESSIONS } from '../api/client.api'
+import { MOCK_SESSIONS, type SessionExercise } from '../api/client.api'
 import { useWeightHistory } from '../hooks/useClientDashboard'
+import { useRoutine } from '../../workouts/hooks/useRoutines'
+import { useExercise } from '../../exercises/hooks/useExercises'
 import ExerciseHistoryChart from '../components/ExerciseHistoryChart'
 import './ExerciseDetailPage.css'
 
 export default function ExerciseDetailPage() {
   const {
     clienteId = 'cliente-001',
-    sesionId = 'sesion-001',
+    sesionId = '',
+    rutinaId = '',
     ejercicioId = 'se-001',
   } = useParams()
+  const activeSessionId = rutinaId || sesionId || 'sesion-001'
+  const isRutinaRoute = Boolean(rutinaId)
+  const basePath = isRutinaRoute
+    ? `/alumno/${clienteId}/rutina/${rutinaId}`
+    : `/alumno/${clienteId}/sesion/${sesionId || 'sesion-001'}`
+
   const navigate = useNavigate()
 
-  const session = MOCK_SESSIONS.find(s => s.id === sesionId) ?? MOCK_SESSIONS[0]
-  const exercise = session.ejercicios.find(e => e.id === ejercicioId) ?? session.ejercicios[0]
-  const exerciseIndex = session.ejercicios.findIndex(e => e.id === ejercicioId)
-  const nextExercise = session.ejercicios[exerciseIndex + 1]
+  // 1. Check if we are viewing a DB Routine
+  const { data: dbRoutine } = useRoutine(activeSessionId)
+  
+  // Transform DB routine exercises if present
+  const routineExercises: SessionExercise[] = useMemo(() => {
+    if (!dbRoutine?.blocks) return []
+    const list: SessionExercise[] = []
+    dbRoutine.blocks.forEach(block => {
+      block.routine_block_exercises.forEach(rbe => {
+        const ex = rbe.exercises
+        list.push({
+          id: rbe.id,
+          ejercicioId: rbe.exercise_id,
+          nombre: ex?.nombre ?? 'Ejercicio',
+          grupoMuscular: ex?.grupo_muscular ?? 'General',
+          categoria: 'Fuerza',
+          series: rbe.sets ?? 3,
+          reps: rbe.reps ?? '10-12',
+          descanso: rbe.rest_seconds ?? 60,
+          instrucciones: ex?.instrucciones ?? (rbe.notes ? [rbe.notes] : []),
+          videoUrl: ex?.video_url ?? undefined,
+          historialPesos: [],
+          setsCompletados: 0,
+        })
+      })
+    })
+    return list
+  }, [dbRoutine])
 
-  const { data: dbWeightHistory } = useWeightHistory(clienteId, exercise.ejercicioId)
-  const historyData = (dbWeightHistory && dbWeightHistory.length > 0)
-    ? dbWeightHistory.map(w => ({ fecha: w.fecha, kg: Number(w.kg) }))
-    : exercise.historialPesos
+  // Fallback to mock session
+  const mockSession = MOCK_SESSIONS.find(s => s.id === activeSessionId) ?? MOCK_SESSIONS[0]
+  const exerciseList = routineExercises.length > 0 ? routineExercises : mockSession.ejercicios
+
+  const exercise =
+    exerciseList.find(e => e.id === ejercicioId || e.ejercicioId === ejercicioId) ??
+    exerciseList[0]
+
+  // Exercise direct query if needed
+  const { data: directExercise } = useExercise(exercise?.ejercicioId ?? '')
+
+  const exerciseIndex = exerciseList.findIndex(
+    e => e.id === ejercicioId || e.ejercicioId === ejercicioId
+  )
+  const nextExercise = exerciseList[exerciseIndex + 1]
+
+  const rawExerciseId = exercise?.ejercicioId || exercise?.id || ''
+  const { data: dbWeightHistory } = useWeightHistory(clienteId, rawExerciseId)
+  const historyData =
+    dbWeightHistory && dbWeightHistory.length > 0
+      ? dbWeightHistory.map(w => ({ fecha: w.fecha, kg: Number(w.kg) }))
+      : exercise?.historialPesos ?? []
 
   // ── Rest Timer ──
   const [timerSecs, setTimerSecs] = useState(0)
@@ -37,7 +88,9 @@ export default function ExerciseDetailPage() {
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [timerRunning])
 
   const formatTimer = (secs: number) => {
@@ -47,35 +100,54 @@ export default function ExerciseDetailPage() {
   }
 
   const handleSerieComplete = () => {
-    if (setsCompleted < exercise.series) {
+    if (exercise && setsCompleted < exercise.series) {
       setSetsCompleted(s => s + 1)
     }
     // Start rest timer
     setTimerSecs(0)
     setTimerRunning(true)
     // Auto-stop after rest time
-    setTimeout(() => setTimerRunning(false), exercise.descanso * 1000)
+    setTimeout(() => setTimerRunning(false), (exercise?.descanso ?? 60) * 1000)
   }
 
-  const allDone = setsCompleted >= exercise.series
+  const allDone = exercise ? setsCompleted >= exercise.series : false
 
   const handleBack = () => {
-    navigate(`/alumno/${clienteId}/sesion/${sesionId}`)
+    navigate(basePath)
   }
 
   const handleNext = () => {
     if (nextExercise) {
-      navigate(`/alumno/${clienteId}/sesion/${sesionId}/ejercicio/${nextExercise.id}`)
+      navigate(`${basePath}/ejercicio/${nextExercise.id}`)
     } else {
-      navigate(`/alumno/${clienteId}/sesion/${sesionId}`)
+      navigate(basePath)
     }
   }
 
   const formatRest = (secs: number) => {
     const m = Math.floor(secs / 60)
     const s = secs % 60
-    return m > 0 ? (s > 0 ? `${m} min ${s}s descanso` : `${m} min descanso`) : `${secs}s descanso`
+    return m > 0
+      ? s > 0
+        ? `${m} min ${s}s descanso`
+        : `${m} min descanso`
+      : `${secs}s descanso`
   }
+
+  if (!exercise) {
+    return (
+      <div className="exercise-detail-page" style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)' }}>Ejercicio no encontrado</p>
+        <button className="ed-footer__btn" onClick={handleBack} style={{ marginTop: 16 }}>
+          Volver
+        </button>
+      </div>
+    )
+  }
+
+  const instrucciones = directExercise?.instrucciones?.length
+    ? directExercise.instrucciones
+    : exercise.instrucciones
 
   // Sets progress dots
   const dots = Array.from({ length: exercise.series }, (_, i) => i < setsCompleted)
@@ -145,14 +217,14 @@ export default function ExerciseDetailPage() {
         </div>
 
         {/* Trainer Notes */}
-        {exercise.instrucciones.length > 0 && (
+        {instrucciones.length > 0 && (
           <div className="ed-notes-card">
             <div className="ed-notes-card__header">
               <span className="ed-notes-card__dot" aria-hidden="true">·</span>
               <h2 className="ed-notes-card__title">Notas del Entrenador</h2>
             </div>
             <ul className="ed-notes-list">
-              {exercise.instrucciones.map((inst, i) => (
+              {instrucciones.map((inst, i) => (
                 <li key={i} className="ed-notes-item">
                   <svg className="ed-notes-item__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>

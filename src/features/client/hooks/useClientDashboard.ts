@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 import type { Tables, InsertTables, UpdateTables } from '../../../lib/supabase'
-import { clientKeys, sessionKeys } from '../../../lib/queryKeys'
+import { clientKeys, sessionKeys, clientRoutineKeys } from '../../../lib/queryKeys'
+import type { RoutineRow } from '../../workouts/hooks/useRoutines'
 
 export type ClientRow = Tables<'clients'>
 export type WorkoutSessionRow = Tables<'workout_sessions'>
@@ -179,5 +180,37 @@ export function useUpdateSessionProgress() {
         queryKey: clientKeys.all,
       })
     },
+  })
+}
+
+export type AssignedRoutineRow = {
+  id: string
+  client_id: string
+  routine_id: string
+  assigned_at: string
+  routines: RoutineRow | null
+}
+
+/**
+ * Hook to fetch routines assigned to a client (for the alumno dashboard).
+ * Joins client_routines with routines table to get full routine details.
+ */
+export function useClientAssignedRoutines(clientId: string) {
+  return useQuery({
+    queryKey: clientRoutineKeys.byClient(clientId),
+    queryFn: async (): Promise<AssignedRoutineRow[]> => {
+      const { data, error } = await supabase
+        .from('client_routines')
+        .select('*, routines(*)')
+        .eq('client_id', clientId)
+        .order('assigned_at', { ascending: false })
+
+      if (error) {
+        throw error
+      }
+
+      return (data as unknown as AssignedRoutineRow[]) ?? []
+    },
+    enabled: Boolean(clientId),
   })
 }

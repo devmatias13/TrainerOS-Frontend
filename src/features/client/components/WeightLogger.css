@@ -1,134 +1,73 @@
-/* ─── Weight Logger ────────────────────────────────────────────────── */
+/* ─── Weight Logger ─────────────────────────────────────────────────── */
+/* Matches mockup: full-width row with input "Peso" + objetivo text + blue check button */
+
 .weight-logger {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
-/* Sets row */
-.weight-logger__sets-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.weight-logger__sets-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.5);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.weight-logger__dots {
-  display: flex;
-  gap: 5px;
-  flex: 1;
-}
-
-.weight-logger__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.weight-logger__dot--done {
-  background: rgba(82, 103, 125, 0.9);
-  border-color: rgba(82, 103, 125, 0.9);
-}
-
-.weight-logger__sets-count {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
-  white-space: nowrap;
-}
-
-/* Input row */
+/* ── Input row (matches mockup) ── */
 .weight-logger__input-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: stretch;
+  gap: 8px;
 }
 
 .weight-logger__input-wrap {
   flex: 1;
-  position: relative;
   display: flex;
   align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0 14px;
+  min-height: 52px;
 }
 
 .weight-logger__input {
   flex: 1;
-  padding: 12px 44px 12px 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  color: #ffffff;
+  background: none;
+  border: none;
   outline: none;
-  text-align: center;
-  transition: border-color 0.15s, background 0.15s;
-  /* Remove number arrows */
-  -moz-appearance: textfield;
-}
-
-.weight-logger__input::-webkit-outer-spin-button,
-.weight-logger__input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  width: 100%;
+  min-width: 0;
 }
 
 .weight-logger__input::placeholder {
   color: rgba(255, 255, 255, 0.3);
-  font-size: 15px;
-  font-weight: 400;
-}
-
-.weight-logger__input:focus {
-  border-color: rgba(82, 103, 125, 0.8);
-  background: rgba(255, 255, 255, 0.12);
 }
 
 .weight-logger__unit {
-  position: absolute;
-  right: 14px;
   font-size: 13px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
-  pointer-events: none;
-}
-
-.weight-logger__objective {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
-  white-space: nowrap;
-}
-
-/* Check button */
-.weight-logger__check-btn {
-  width: 48px;
-  height: 48px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
   flex-shrink: 0;
-  border-radius: var(--radius-sm);
-  background: var(--color-midnight-blue);
-  border: none;
+}
+
+/* ── Check button (dark blue, matches mockup) ── */
+.weight-logger__check-btn {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #1c2e4a;
+  border: 1px solid rgba(82, 103, 125, 0.5);
   color: #ffffff;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
 
 .weight-logger__check-btn:hover:not(:disabled) {
-  background: #243b5a;
+  background: #253d5f;
   transform: scale(1.04);
 }
 
@@ -137,25 +76,74 @@
   cursor: not-allowed;
 }
 
-@keyframes flash-check {
-  0%   { background: #22c55e; transform: scale(1.1); }
-  50%  { background: #16a34a; transform: scale(0.96); }
-  100% { background: var(--color-midnight-blue); transform: scale(1); }
-}
-
 .weight-logger__check-btn--flash {
-  animation: flash-check 0.5s ease forwards;
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.4);
+  animation: check-flash 0.4s ease;
 }
 
-/* Done row */
+@keyframes check-flash {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+/* ── Objetivo label ── */
+.weight-logger__sets-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.weight-logger__sets-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.weight-logger__dots {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.weight-logger__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.weight-logger__dot--done {
+  background: #1c2e4a;
+  border-color: rgba(82, 103, 125, 0.9);
+}
+
+.weight-logger__sets-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
+
+/* Objetivo target text */
+.weight-logger__objective {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: right;
+}
+
+/* Done state */
 .weight-logger__done-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
-  background: rgba(34, 197, 94, 0.12);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 8px;
   color: #86efac;
   font-size: 13px;
   font-weight: 500;

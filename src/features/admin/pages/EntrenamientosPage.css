@@ -157,6 +157,28 @@
 .rutina-card__actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.rutina-card__delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-outline-var);
+  background: none;
+  color: var(--color-dusty-blue);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rutina-card__delete-btn:hover {
+  background: var(--color-danger-subtle, rgba(239, 68, 68, 0.1));
+  color: var(--color-danger, #ef4444);
+  border-color: var(--color-danger, #ef4444);
 }
 
 .rutina-card__edit-btn {

@@ -22,17 +22,12 @@ export default function ExerciseSessionCard({
   const isCompleted = exercise.setsCompletados >= exercise.series
 
   const handleOpenDetail = () => {
+    // If sesionId looks like a UUID or is a routine, route accordingly
+    const isRutina = window.location.pathname.includes('/rutina/')
+    const base = isRutina ? 'rutina' : 'sesion'
     navigate(
-      `/alumno/${clienteId}/sesion/${sesionId}/ejercicio/${exercise.id}`
+      `/alumno/${clienteId}/${base}/${sesionId}/ejercicio/${exercise.id}`
     )
-  }
-
-  // Format rest time
-  const formatRest = (secs: number) => {
-    if (secs < 60) return `${secs}s`
-    const m = Math.floor(secs / 60)
-    const s = secs % 60
-    return s > 0 ? `${m}m ${s}s` : `${m} min`
   }
 
   return (
@@ -40,7 +35,7 @@ export default function ExerciseSessionCard({
       className={`ex-session-card${isCompleted ? ' ex-session-card--done' : ''}`}
       id={`exercise-card-${exercise.id}`}
     >
-      {/* Header */}
+      {/* Header: number + name + category chip */}
       <div className="ex-session-card__header">
         <div className="ex-session-card__numbering">
           <span className="ex-session-card__number">{index + 1}.</span>
@@ -51,8 +46,15 @@ export default function ExerciseSessionCard({
         </span>
       </div>
 
-      {/* Video / Thumbnail area */}
-      <div className="ex-session-card__media" onClick={handleOpenDetail} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && handleOpenDetail()} aria-label={`Ver detalle de ${exercise.nombre}`}>
+      {/* Video / Thumbnail area — click to open detail */}
+      <div
+        className="ex-session-card__media"
+        onClick={handleOpenDetail}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => e.key === 'Enter' && handleOpenDetail()}
+        aria-label={`Ver técnica y notas de ${exercise.nombre}`}
+      >
         <div className="ex-session-card__media-inner">
           <div className="ex-session-card__play-circle" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
@@ -63,7 +65,7 @@ export default function ExerciseSessionCard({
         </div>
       </div>
 
-      {/* Metrics grid */}
+      {/* Metrics: SERIES | REPS — 2-column grid matching mockup */}
       <div className="ex-session-card__metrics">
         <div className="ex-session-card__metric">
           <span className="ex-session-card__metric-label">SERIES</span>
@@ -73,15 +75,16 @@ export default function ExerciseSessionCard({
           <span className="ex-session-card__metric-label">REPS</span>
           <span className="ex-session-card__metric-value">{exercise.reps}</span>
         </div>
-        <div className="ex-session-card__metric">
-          <span className="ex-session-card__metric-label">DESCANSO</span>
-          <span className="ex-session-card__metric-value">{formatRest(exercise.descanso)}</span>
-        </div>
       </div>
 
       {/* Weight logger */}
       <div className="ex-session-card__logger">
-        <p className="ex-session-card__logger-label">Registro de Carga (kg)</p>
+        <div className="ex-session-card__logger-meta">
+          <p className="ex-session-card__logger-label">Registro de Carga (kg)</p>
+          {exercise.pesoObjetivo && (
+            <span className="ex-session-card__logger-objective">Objetivo: {exercise.pesoObjetivo}kg</span>
+          )}
+        </div>
         <WeightLogger
           targetKg={exercise.pesoObjetivo}
           setsTotal={exercise.series}
