@@ -55,6 +55,14 @@ const router = createBrowserRouter([
         element: <ClientDashboard />,
       },
       {
+        path: ':clienteId/rutina/:rutinaId',
+        element: <WorkoutSessionPage />,
+      },
+      {
+        path: ':clienteId/rutina/:rutinaId/ejercicio/:ejercicioId',
+        element: <ExerciseDetailPage />,
+      },
+      {
         path: ':clienteId/sesion/:sesionId',
         element: <WorkoutSessionPage />,
       },

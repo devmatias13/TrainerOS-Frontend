@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, X, AlertCircle } from 'lucide-react'
 import { useRoutineBuilder } from '../../../features/workouts/hooks/useRoutineBuilder'
-import { useCreateRoutine } from '../../../features/workouts/hooks/useRoutines'
+import { useCreateFullRoutine } from '../../../features/workouts/hooks/useRoutines'
 import ExercisePicker from '../../../features/workouts/components/ExercisePicker'
 import RoutineBuilder from '../../../features/workouts/components/RoutineBuilder'
 import { useAuth } from '../../auth'
@@ -17,7 +17,7 @@ export default function ArmarRutinaPage() {
   const [pickerTargetBlockId, setPickerTargetBlockId] = useState<string | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
 
-  const createRoutine = useCreateRoutine()
+  const createRoutine = useCreateFullRoutine()
 
   const {
     blocks,
@@ -70,11 +70,24 @@ export default function ArmarRutinaPage() {
     }
 
     try {
+      const formattedBlocks = blocks.map((b, blockIndex) => ({
+        label: b.label,
+        type: b.type,
+        order_index: blockIndex,
+        exercises: b.exercises.map((e, exIndex) => ({
+          exercise_id: e.exercise.id,
+          sets: e.sets,
+          reps: e.reps,
+          order_index: exIndex,
+        })),
+      }))
+
       await createRoutine.mutateAsync({
         nombre: routineTitle.trim(),
         dia: null,
         descripcion: `${totalExercises} ejercicios · ${estimatedMinutes} min est.`,
         trainer_id: user.id, // Authenticated trainer ID
+        blocks: formattedBlocks,
       })
       navigate('/admin/entrenamientos')
     } catch (err: unknown) {

@@ -22,8 +22,11 @@ export default function ExerciseSessionCard({
   const isCompleted = exercise.setsCompletados >= exercise.series
 
   const handleOpenDetail = () => {
+    // If sesionId looks like a UUID or is a routine, route accordingly
+    const isRutina = window.location.pathname.includes('/rutina/')
+    const base = isRutina ? 'rutina' : 'sesion'
     navigate(
-      `/alumno/${clienteId}/sesion/${sesionId}/ejercicio/${exercise.id}`
+      `/alumno/${clienteId}/${base}/${sesionId}/ejercicio/${exercise.id}`
     )
   }
 
