@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { MOCK_CLIENT, MOCK_SESSIONS } from '../api/client.api'
+import { MOCK_CLIENT, MOCK_SESSIONS, type SessionExercise } from '../api/client.api'
 import { useClientProfile, useClientSessions } from '../hooks/useClientDashboard'
 import './ClientDashboard.css'
 
@@ -32,7 +32,7 @@ export default function ClientDashboard() {
       ejercicioId: se.exercise_id,
       nombre: se.exercises?.nombre ?? 'Ejercicio',
       grupoMuscular: se.exercises?.grupo_muscular ?? 'General',
-      categoria: (se.categoria ?? 'Hipertrofia') as any,
+      categoria: (se.categoria ?? 'Hipertrofia') as SessionExercise['categoria'],
       series: se.series,
       reps: se.reps,
       descanso: se.descanso,

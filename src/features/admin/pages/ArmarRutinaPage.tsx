@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, X } from 'lucide-react'
+import { ArrowLeft, Plus, X, AlertCircle } from 'lucide-react'
 import { useRoutineBuilder } from '../../../features/workouts/hooks/useRoutineBuilder'
 import { useCreateRoutine } from '../../../features/workouts/hooks/useRoutines'
 import ExercisePicker from '../../../features/workouts/components/ExercisePicker'
 import RoutineBuilder from '../../../features/workouts/components/RoutineBuilder'
+import { useAuth } from '../../auth'
 import type { Tables } from '../../../lib/supabase'
 import './ArmarRutinaPage.css'
 
 export default function ArmarRutinaPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [routineTitle, setRoutineTitle] = useState('Nueva Rutina')
   const [isPickerOpen, setIsPickerOpen] = useState(false) // mobile drawer state
   const [pickerTargetBlockId, setPickerTargetBlockId] = useState<string | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   const createRoutine = useCreateRoutine()
 
@@ -28,6 +31,7 @@ export default function ArmarRutinaPage() {
   } = useRoutineBuilder(routineTitle)
 
   const handleAddFromPicker = (exercise: Tables<'exercises'>) => {
+    setValidationError(null)
     if (pickerTargetBlockId) {
       addExerciseToBlock(pickerTargetBlockId, exercise)
     } else {
@@ -38,25 +42,45 @@ export default function ArmarRutinaPage() {
   }
 
   const handleDropExercise = (exercise: Tables<'exercises'>) => {
+    setValidationError(null)
     addBlock(exercise)
   }
 
   const handleDropToBlock = (blockId: string, exercise: Tables<'exercises'>) => {
+    setValidationError(null)
     addExerciseToBlock(blockId, exercise)
   }
 
   const handleFinalize = async () => {
+    setValidationError(null)
+
+    if (!routineTitle.trim()) {
+      setValidationError('La rutina debe tener un nombre.')
+      return
+    }
+
+    if (totalExercises === 0) {
+      setValidationError('Debes añadir al menos un ejercicio a la rutina.')
+      return
+    }
+
+    if (!user) {
+      setValidationError('Debes haber iniciado sesión como entrenador para guardar rutinas.')
+      return
+    }
+
     try {
       await createRoutine.mutateAsync({
-        nombre: routineTitle,
+        nombre: routineTitle.trim(),
         dia: null,
         descripcion: `${totalExercises} ejercicios · ${estimatedMinutes} min est.`,
-        trainer_id: '00000000-0000-0000-0000-000000000001',
+        trainer_id: user.id, // Authenticated trainer ID
       })
       navigate('/admin/entrenamientos')
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error saving routine:', err)
-      navigate('/admin/entrenamientos')
+      const message = err instanceof Error ? err.message : String(err)
+      setValidationError(message || 'Error al guardar la rutina en la base de datos.')
     }
   }
 
@@ -78,7 +102,10 @@ export default function ArmarRutinaPage() {
             <input
               className="armar-rutina__title-input"
               value={routineTitle}
-              onChange={e => setRoutineTitle(e.target.value)}
+              onChange={e => {
+                setRoutineTitle(e.target.value)
+                setValidationError(null)
+              }}
               aria-label="Nombre de la rutina"
               spellCheck={false}
             />
@@ -89,10 +116,29 @@ export default function ArmarRutinaPage() {
         <button
           className="armar-rutina__finalize-mobile btn-primary"
           onClick={handleFinalize}
+          disabled={createRoutine.isPending}
         >
-          Finalizar
+          {createRoutine.isPending ? 'Guardando...' : 'Finalizar'}
         </button>
       </header>
+
+      {/* Validation banner */}
+      {validationError && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          background: '#fef2f2',
+          borderBottom: '1px solid #fecaca',
+          color: '#991b1b',
+          padding: '10px 24px',
+          fontSize: '13px',
+          fontWeight: 500,
+        }}>
+          <AlertCircle size={16} />
+          <span>{validationError}</span>
+        </div>
+      )}
 
       {/* ── Desktop Layout: split panel ── */}
       <div className="armar-rutina__body">

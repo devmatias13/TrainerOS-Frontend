@@ -1,8 +1,9 @@
 import { useState, type FormEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, FileText, Video } from 'lucide-react'
+import { ArrowLeft, FileText, Video, AlertCircle } from 'lucide-react'
 import { MUSCLE_GROUPS, type MuscleGroup, type Difficulty } from '../api/exercises.api'
 import { useCreateExercise } from '../hooks/useExercises'
+import { useAuth } from '../../auth'
 import ClientPreview from '../components/ClientPreview'
 import './NuevoEjercicioPage.css'
 
@@ -12,6 +13,12 @@ type FormState = {
   dificultad: Difficulty
   instrucciones: string
   videoUrl: string
+}
+
+type FormErrors = {
+  nombre?: string
+  grupoMuscular?: string
+  instrucciones?: string
 }
 
 const INITIAL: FormState = {
@@ -26,11 +33,47 @@ const DIFFICULTIES: Difficulty[] = ['Principiante', 'Intermedio', 'Avanzado']
 
 export default function NuevoEjercicioPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const createExercise = useCreateExercise()
   const [form, setForm] = useState<FormState>(INITIAL)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const set = <K extends keyof FormState>(key: K, val: FormState[K]) =>
-    setForm(prev => ({ ...prev, [key]: val }))
+  const validate = (state: FormState): FormErrors => {
+    const errs: FormErrors = {}
+    if (!state.nombre.trim()) {
+      errs.nombre = 'El nombre del ejercicio es obligatorio.'
+    } else if (state.nombre.trim().length < 3) {
+      errs.nombre = 'El nombre debe tener al menos 3 caracteres.'
+    }
+
+    if (!state.grupoMuscular) {
+      errs.grupoMuscular = 'Debes seleccionar un grupo muscular principal.'
+    }
+
+    if (!state.instrucciones.trim()) {
+      errs.instrucciones = 'Añade al menos una instrucción para el alumno.'
+    }
+
+    return errs
+  }
+
+  const set = <K extends keyof FormState>(key: K, val: FormState[K]) => {
+    setForm(prev => {
+      const updated = { ...prev, [key]: val }
+      if (touched[key]) {
+        setErrors(validate(updated))
+      }
+      return updated
+    })
+    setSubmitError(null)
+  }
+
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }))
+    setErrors(validate(form))
+  }
 
   // Build preview data
   const previewInstructions = form.instrucciones
@@ -40,21 +83,38 @@ export default function NuevoEjercicioPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+
+    const validationErrors = validate(form)
+    setErrors(validationErrors)
+    setTouched({ nombre: true, grupoMuscular: true, instrucciones: true })
+
+    if (Object.keys(validationErrors).length > 0) {
+      setSubmitError('Por favor revisa los campos requeridos.')
+      return
+    }
+
+    if (!user) {
+      setSubmitError('Debes haber iniciado sesión para crear un ejercicio.')
+      return
+    }
+
     try {
       await createExercise.mutateAsync({
-        nombre: form.nombre,
-        grupo_muscular: form.grupoMuscular as any,
+        nombre: form.nombre.trim(),
+        grupo_muscular: form.grupoMuscular as MuscleGroup,
         grupos_secundarios: [],
-        dificultad: form.dificultad as any,
+        dificultad: form.dificultad as Difficulty,
         instrucciones: previewInstructions,
-        video_url: form.videoUrl || null,
+        video_url: form.videoUrl.trim() || null,
         series_default: null,
         duracion_estimada: null,
-        trainer_id: null, // Global exercise for now
+        trainer_id: user.id, // Strictly private to this trainer
       })
       navigate('/admin/entrenamientos/ejercicios')
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error creating exercise:', err)
+      const message = err instanceof Error ? err.message : String(err)
+      setSubmitError(message || 'Error al guardar el ejercicio en Supabase.')
     }
   }
 
@@ -107,11 +167,31 @@ export default function NuevoEjercicioPage() {
         </button>
       </div>
 
+      {submitError && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#991b1b',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          margin: '0 24px 16px 24px',
+          fontSize: '13.5px',
+          fontWeight: 500,
+        }}>
+          <AlertCircle size={18} />
+          <span>{submitError}</span>
+        </div>
+      )}
+
       {/* ── Body ── */}
       <form
         className="nuevo-ejercicio__body"
         onSubmit={handleSubmit}
         id="form-nuevo-ejercicio"
+        noValidate
       >
 
         {/* LEFT COLUMN */}
@@ -126,30 +206,37 @@ export default function NuevoEjercicioPage() {
 
             <div className="ne-field">
               <label htmlFor="ne-nombre" className="ne-label">
-                Nombre del Ejercicio
+                Nombre del Ejercicio *
               </label>
               <input
                 id="ne-nombre"
-                className="ne-input"
+                className={`ne-input ${errors.nombre && touched.nombre ? 'ne-input--error' : ''}`}
                 type="text"
                 placeholder="Ej. Sentadilla Frontal con Barra"
                 value={form.nombre}
                 onChange={e => set('nombre', e.target.value)}
+                onBlur={() => handleBlur('nombre')}
                 required
                 autoComplete="off"
               />
+              {errors.nombre && touched.nombre && (
+                <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                  {errors.nombre}
+                </span>
+              )}
             </div>
 
             <div className="ne-row">
               <div className="ne-field">
                 <label htmlFor="ne-grupo" className="ne-label">
-                  Grupo Muscular Principal
+                  Grupo Muscular Principal *
                 </label>
                 <select
                   id="ne-grupo"
-                  className="ne-input"
+                  className={`ne-input ${errors.grupoMuscular && touched.grupoMuscular ? 'ne-input--error' : ''}`}
                   value={form.grupoMuscular}
                   onChange={e => set('grupoMuscular', e.target.value as MuscleGroup)}
+                  onBlur={() => handleBlur('grupoMuscular')}
                   required
                 >
                   <option value="" disabled>Seleccionar…</option>
@@ -157,6 +244,11 @@ export default function NuevoEjercicioPage() {
                     <option key={g} value={g}>{g}</option>
                   ))}
                 </select>
+                {errors.grupoMuscular && touched.grupoMuscular && (
+                  <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                    {errors.grupoMuscular}
+                  </span>
+                )}
               </div>
 
               <div className="ne-field">
@@ -190,17 +282,24 @@ export default function NuevoEjercicioPage() {
 
             <div className="ne-field">
               <label htmlFor="ne-instrucciones" className="ne-label">
-                Instrucciones de Ejecución
+                Instrucciones de Ejecución *
                 <span className="ne-label-hint">(una por línea)</span>
               </label>
               <textarea
                 id="ne-instrucciones"
-                className="ne-input ne-textarea"
+                className={`ne-input ne-textarea ${errors.instrucciones && touched.instrucciones ? 'ne-input--error' : ''}`}
                 placeholder={`Describe los puntos clave para una técnica perfecta…\n\nEj.\nMantén los codos altos y el pecho erguido durante todo el movimiento.\nDesciende hasta que los muslos estén paralelos al suelo.`}
                 value={form.instrucciones}
                 onChange={e => set('instrucciones', e.target.value)}
+                onBlur={() => handleBlur('instrucciones')}
                 rows={5}
+                required
               />
+              {errors.instrucciones && touched.instrucciones && (
+                <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                  {errors.instrucciones}
+                </span>
+              )}
             </div>
           </div>
 

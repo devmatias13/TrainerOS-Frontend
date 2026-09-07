@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, CreditCard, Activity, Flag } from 'lucide-react'
+import { User, CreditCard, Activity, Flag, AlertCircle } from 'lucide-react'
 import { useCreateClient } from '../hooks/useClients'
+import { useAuth } from '../../auth'
 import './NuevoClientePage.css'
 
 interface FormState {
@@ -9,57 +10,166 @@ interface FormState {
   email: string
   telefono: string
   fechaNacimiento: string
-  tipoPlan: string
+  tipoPlan: 'basico' | 'estandar' | 'premium' | 'personalizado'
   fechaInicio: string
   estadoPago: 'pagado' | 'pendiente'
   peso: string
   altura: string
   grasaCorporal: string
-  experiencia: string
+  experiencia: 'principiante' | 'intermedio' | 'avanzado'
   objetivo: string
   historialMedico: string
   consideraciones: string
 }
 
+interface FormErrors {
+  nombre?: string
+  email?: string
+  telefono?: string
+  peso?: string
+  altura?: string
+  grasaCorporal?: string
+}
+
 const INITIAL: FormState = {
-  nombre: '', email: '', telefono: '', fechaNacimiento: '',
-  tipoPlan: 'basico', fechaInicio: '', estadoPago: 'pagado',
-  peso: '', altura: '', grasaCorporal: '', experiencia: 'principiante',
-  objetivo: '', historialMedico: '', consideraciones: '',
+  nombre: '',
+  email: '',
+  telefono: '',
+  fechaNacimiento: '',
+  tipoPlan: 'basico',
+  fechaInicio: '',
+  estadoPago: 'pagado',
+  peso: '',
+  altura: '',
+  grasaCorporal: '',
+  experiencia: 'principiante',
+  objetivo: '',
+  historialMedico: '',
+  consideraciones: '',
 }
 
 export default function NuevoClientePage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const createClient = useCreateClient()
   const [form, setForm] = useState<FormState>(INITIAL)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
 
-  const set = (key: keyof FormState, val: string) =>
-    setForm(prev => ({ ...prev, [key]: val }))
+  const validate = (state: FormState): FormErrors => {
+    const errs: FormErrors = {}
+
+    if (!state.nombre.trim()) {
+      errs.nombre = 'El nombre completo es obligatorio.'
+    } else if (state.nombre.trim().length < 3) {
+      errs.nombre = 'Ingresa al menos 3 caracteres.'
+    }
+
+    if (!state.email.trim()) {
+      errs.email = 'El correo electrónico es obligatorio.'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
+      errs.email = 'Ingresa un formato de correo válido (ej. alumno@email.com).'
+    }
+
+    if (state.telefono.trim() && !/^[+0-9\s-]{6,20}$/.test(state.telefono.trim())) {
+      errs.telefono = 'Ingresa un número de teléfono válido (mínimo 6 dígitos).'
+    }
+
+    if (state.peso) {
+      const p = parseFloat(state.peso)
+      if (isNaN(p) || p <= 20 || p >= 350) {
+        errs.peso = 'Ingresa un peso válido entre 20 y 350 kg.'
+      }
+    }
+
+    if (state.altura) {
+      const a = parseFloat(state.altura)
+      if (isNaN(a) || a <= 80 || a >= 250) {
+        errs.altura = 'Ingresa una altura válida entre 80 y 250 cm.'
+      }
+    }
+
+    if (state.grasaCorporal) {
+      const g = parseFloat(state.grasaCorporal)
+      if (isNaN(g) || g < 2 || g > 60) {
+        errs.grasaCorporal = 'El % de grasa debe estar entre 2 y 60%.'
+      }
+    }
+
+    return errs
+  }
+
+  const set = <K extends keyof FormState>(key: K, val: FormState[K]) => {
+    setForm(prev => {
+      const updated = { ...prev, [key]: val }
+      if (touched[key]) {
+        setErrors(validate(updated))
+      }
+      return updated
+    })
+    setSubmitError(null)
+  }
+
+  const handleBlur = (key: string) => {
+    setTouched(prev => ({ ...prev, [key]: true }))
+    setErrors(validate(form))
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+
+    const validationErrors = validate(form)
+    setErrors(validationErrors)
+    setTouched({
+      nombre: true,
+      email: true,
+      telefono: true,
+      peso: true,
+      altura: true,
+      grasaCorporal: true,
+    })
+
+    if (Object.keys(validationErrors).length > 0) {
+      setSubmitError('Por favor revisa los campos señalados antes de guardar.')
+      return
+    }
+
+    if (!user) {
+      setSubmitError('Debes haber iniciado sesión como entrenador para registrar un cliente.')
+      return
+    }
+
+    const expMapping: Record<string, 'Principiante' | 'Intermedio' | 'Avanzado'> = {
+      principiante: 'Principiante',
+      intermedio: 'Intermedio',
+      avanzado: 'Avanzado',
+    }
+
     try {
       await createClient.mutateAsync({
         nombre: form.nombre.split(' ')[0] || form.nombre,
         apellido: form.nombre.split(' ').slice(1).join(' ') || '',
-        email: form.email,
-        telefono: form.telefono || null,
+        email: form.email.trim().toLowerCase(),
+        telefono: form.telefono.trim() || null,
         fecha_nacimiento: form.fechaNacimiento || null,
-        plan_tier: form.tipoPlan as any,
+        plan_tier: form.tipoPlan,
         fecha_inicio: form.fechaInicio || new Date().toISOString().split('T')[0],
         estado_pago: form.estadoPago,
         peso_inicial: form.peso ? parseFloat(form.peso) : null,
         altura: form.altura ? parseFloat(form.altura) : null,
         grasa_corporal: form.grasaCorporal ? parseFloat(form.grasaCorporal) : null,
-        experiencia: form.experiencia as any,
-        objetivo: form.objetivo || null,
-        historial_medico: form.historialMedico || null,
-        consideraciones: form.consideraciones || null,
-        trainer_id: '00000000-0000-0000-0000-000000000001', // TODO: replace with auth user id
+        experiencia: expMapping[form.experiencia] ?? 'Principiante',
+        objetivo: form.objetivo.trim() || null,
+        historial_medico: form.historialMedico.trim() || null,
+        consideraciones: form.consideraciones.trim() || null,
+        trainer_id: user.id, // Authenticated trainer ID
       })
       navigate('/admin/clientes')
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error creating client:', err)
+      const message = err instanceof Error ? err.message : String(err)
+      setSubmitError(message || 'Error al guardar el cliente en Supabase.')
     }
   }
 
@@ -70,7 +180,26 @@ export default function NuevoClientePage() {
         <h1 className="page-header__title">Añadir Nuevo Cliente</h1>
       </div>
 
-      <form className="nuevo-cliente-form" onSubmit={handleSubmit}>
+      {submitError && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#991b1b',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          margin: '16px 24px 0 24px',
+          fontSize: '13.5px',
+          fontWeight: 500,
+        }}>
+          <AlertCircle size={18} />
+          <span>{submitError}</span>
+        </div>
+      )}
+
+      <form className="nuevo-cliente-form" onSubmit={handleSubmit} noValidate>
 
         {/* ── Información Personal ── */}
         <div className="form-section">
@@ -80,42 +209,60 @@ export default function NuevoClientePage() {
           </div>
           <div className="form-grid form-grid--2">
             <div className="form-field">
-              <label className="form-label">Nombre Completo</label>
+              <label className="form-label" htmlFor="nombre">Nombre Completo *</label>
               <input
                 id="nombre"
-                className="form-input"
+                className={`form-input ${errors.nombre && touched.nombre ? 'form-input--error' : ''}`}
                 type="text"
                 placeholder="Ej. Juan Pérez"
                 value={form.nombre}
                 onChange={e => set('nombre', e.target.value)}
+                onBlur={() => handleBlur('nombre')}
                 required
               />
+              {errors.nombre && touched.nombre && (
+                <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                  {errors.nombre}
+                </span>
+              )}
             </div>
             <div className="form-field">
-              <label className="form-label">Correo Electrónico</label>
+              <label className="form-label" htmlFor="email">Correo Electrónico *</label>
               <input
                 id="email"
-                className="form-input"
+                className={`form-input ${errors.email && touched.email ? 'form-input--error' : ''}`}
                 type="email"
                 placeholder="juan@ejemplo.com"
                 value={form.email}
                 onChange={e => set('email', e.target.value)}
+                onBlur={() => handleBlur('email')}
                 required
               />
+              {errors.email && touched.email && (
+                <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                  {errors.email}
+                </span>
+              )}
             </div>
             <div className="form-field">
-              <label className="form-label">Teléfono</label>
+              <label className="form-label" htmlFor="telefono">Teléfono</label>
               <input
                 id="telefono"
-                className="form-input"
+                className={`form-input ${errors.telefono && touched.telefono ? 'form-input--error' : ''}`}
                 type="tel"
-                placeholder="+34 600 000 000"
+                placeholder="+54 9 11 1234-5678"
                 value={form.telefono}
                 onChange={e => set('telefono', e.target.value)}
+                onBlur={() => handleBlur('telefono')}
               />
+              {errors.telefono && touched.telefono && (
+                <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                  {errors.telefono}
+                </span>
+              )}
             </div>
             <div className="form-field">
-              <label className="form-label">Fecha de Nacimiento</label>
+              <label className="form-label" htmlFor="fechaNacimiento">Fecha de Nacimiento</label>
               <input
                 id="fechaNacimiento"
                 className="form-input"
@@ -135,12 +282,12 @@ export default function NuevoClientePage() {
           </div>
           <div className="form-grid form-grid--1">
             <div className="form-field">
-              <label className="form-label">Tipo de Plan</label>
+              <label className="form-label" htmlFor="tipoPlan">Tipo de Plan</label>
               <select
                 id="tipoPlan"
                 className="form-input"
                 value={form.tipoPlan}
-                onChange={e => set('tipoPlan', e.target.value)}
+                onChange={e => set('tipoPlan', e.target.value as FormState['tipoPlan'])}
               >
                 <option value="basico">Básico (1 vez/semana)</option>
                 <option value="estandar">Estándar (3 veces/semana)</option>
@@ -149,7 +296,7 @@ export default function NuevoClientePage() {
               </select>
             </div>
             <div className="form-field">
-              <label className="form-label">Fecha de Inicio</label>
+              <label className="form-label" htmlFor="fechaInicio">Fecha de Inicio</label>
               <input
                 id="fechaInicio"
                 className="form-input"
@@ -190,45 +337,65 @@ export default function NuevoClientePage() {
             </div>
             <div className="form-grid form-grid--2">
               <div className="form-field">
-                <label className="form-label">Peso (kg)</label>
+                <label className="form-label" htmlFor="peso">Peso (kg)</label>
                 <input
                   id="peso"
-                  className="form-input"
+                  className={`form-input ${errors.peso && touched.peso ? 'form-input--error' : ''}`}
                   type="number"
-                  placeholder="75"
+                  step="0.1"
+                  placeholder="75.5"
                   value={form.peso}
                   onChange={e => set('peso', e.target.value)}
+                  onBlur={() => handleBlur('peso')}
                 />
+                {errors.peso && touched.peso && (
+                  <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                    {errors.peso}
+                  </span>
+                )}
               </div>
               <div className="form-field">
-                <label className="form-label">Altura (cm)</label>
+                <label className="form-label" htmlFor="altura">Altura (cm)</label>
                 <input
                   id="altura"
-                  className="form-input"
+                  className={`form-input ${errors.altura && touched.altura ? 'form-input--error' : ''}`}
                   type="number"
                   placeholder="175"
                   value={form.altura}
                   onChange={e => set('altura', e.target.value)}
+                  onBlur={() => handleBlur('altura')}
                 />
+                {errors.altura && touched.altura && (
+                  <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                    {errors.altura}
+                  </span>
+                )}
               </div>
               <div className="form-field">
-                <label className="form-label">% Grasa Corporal</label>
+                <label className="form-label" htmlFor="grasa">% Grasa Corporal</label>
                 <input
                   id="grasa"
-                  className="form-input"
+                  className={`form-input ${errors.grasaCorporal && touched.grasaCorporal ? 'form-input--error' : ''}`}
                   type="number"
-                  placeholder="15"
+                  step="0.1"
+                  placeholder="15.0"
                   value={form.grasaCorporal}
                   onChange={e => set('grasaCorporal', e.target.value)}
+                  onBlur={() => handleBlur('grasaCorporal')}
                 />
+                {errors.grasaCorporal && touched.grasaCorporal && (
+                  <span style={{ fontSize: '11.5px', color: 'var(--color-error)', marginTop: '4px' }}>
+                    {errors.grasaCorporal}
+                  </span>
+                )}
               </div>
               <div className="form-field">
-                <label className="form-label">Exp. de Entrenamiento</label>
+                <label className="form-label" htmlFor="experiencia">Exp. de Entrenamiento</label>
                 <select
                   id="experiencia"
                   className="form-input"
                   value={form.experiencia}
-                  onChange={e => set('experiencia', e.target.value)}
+                  onChange={e => set('experiencia', e.target.value as FormState['experiencia'])}
                 >
                   <option value="principiante">Principiante</option>
                   <option value="intermedio">Intermedio</option>
@@ -246,7 +413,7 @@ export default function NuevoClientePage() {
             </div>
             <div className="form-grid form-grid--1">
               <div className="form-field">
-                <label className="form-label">Objetivo Principal</label>
+                <label className="form-label" htmlFor="objetivo">Objetivo Principal</label>
                 <input
                   id="objetivo"
                   className="form-input"
@@ -257,7 +424,7 @@ export default function NuevoClientePage() {
                 />
               </div>
               <div className="form-field">
-                <label className="form-label">Historial Médico / Lesiones</label>
+                <label className="form-label" htmlFor="historialMedico">Historial Médico / Lesiones</label>
                 <textarea
                   id="historialMedico"
                   className="form-input form-textarea"
@@ -268,7 +435,7 @@ export default function NuevoClientePage() {
                 />
               </div>
               <div className="form-field">
-                <label className="form-label">Consideraciones Especiales</label>
+                <label className="form-label" htmlFor="consideraciones">Consideraciones Especiales</label>
                 <textarea
                   id="consideraciones"
                   className="form-input form-textarea"

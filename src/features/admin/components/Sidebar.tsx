@@ -9,6 +9,7 @@ import {
   LogOut,
   Library,
 } from 'lucide-react'
+import { useAuth } from '../../auth'
 import './Sidebar.css'
 
 const navItems = [
@@ -21,6 +22,17 @@ const navItems = [
 
 export default function Sidebar() {
   const navigate = useNavigate()
+  const { signOut } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      navigate('/login')
+    } catch (err) {
+      console.error('Error logging out:', err)
+      navigate('/login')
+    }
+  }
 
   return (
     <>
@@ -68,7 +80,7 @@ export default function Sidebar() {
             <HelpCircle size={16} strokeWidth={1.5} />
             <span>Soporte</span>
           </button>
-          <button className="sidebar__footer-item">
+          <button className="sidebar__footer-item" onClick={handleLogout} title="Cerrar sesión">
             <LogOut size={16} strokeWidth={1.5} />
             <span>Cerrar Sesión</span>
           </button>

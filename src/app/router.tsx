@@ -8,6 +8,7 @@ import ArmarRutinaPage from '../features/admin/pages/ArmarRutinaPage'
 import FinanzasPage from '../features/admin/pages/FinanzasPage'
 import ExerciseBankPage from '../features/exercises/pages/ExerciseBankPage'
 import NuevoEjercicioPage from '../features/exercises/pages/NuevoEjercicioPage'
+import { LoginPage, ProtectedRoute } from '../features/auth'
 // Client (alumno) feature
 import ClientLayout from '../features/client/components/ClientLayout'
 import ClientDashboard from '../features/client/pages/ClientDashboard'
@@ -20,8 +21,16 @@ const router = createBrowserRouter([
     element: <Navigate to="/admin/dashboard" replace />,
   },
   {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
     path: '/admin',
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <Navigate to="/admin/dashboard" replace /> },
       { path: 'dashboard',                            element: <DashboardPage /> },
