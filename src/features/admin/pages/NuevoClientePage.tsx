@@ -1,8 +1,11 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { User, CreditCard, Activity, Flag, AlertCircle } from 'lucide-react'
-import { useCreateClient } from '../hooks/useClients'
+import { useState, useEffect, type FormEvent } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { User, CreditCard, Activity, Flag, AlertCircle, ArrowLeft, Trash2 } from 'lucide-react'
+import { useCreateClient, useUpdateClient, useDeleteClient, useClient } from '../hooks/useClients'
 import { useAuth } from '../../auth'
+import ConfirmModal from '../../../components/ConfirmModal'
+import LoadingSkeleton from '../../../components/LoadingSkeleton'
+import ErrorState from '../../../components/ErrorState'
 import './NuevoClientePage.css'
 
 interface FormState {
@@ -50,12 +53,45 @@ const INITIAL: FormState = {
 
 export default function NuevoClientePage() {
   const navigate = useNavigate()
+  const { id } = useParams<{ id?: string }>()
+  const isEdit = Boolean(id)
   const { user } = useAuth()
+
   const createClient = useCreateClient()
+  const updateClient = useUpdateClient()
+  const deleteClient = useDeleteClient()
+  const { data: existingClient, isLoading: isLoadingClient, error: clientFetchError } = useClient(id ?? '')
+
   const [form, setForm] = useState<FormState>(INITIAL)
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  // Pre-fill form when editing an existing client
+  useEffect(() => {
+    if (existingClient) {
+      const fullName = [existingClient.nombre, existingClient.apellido].filter(Boolean).join(' ')
+      setForm({
+        nombre: fullName,
+        email: existingClient.email || '',
+        telefono: existingClient.telefono || '',
+        fechaNacimiento: existingClient.fecha_nacimiento || '',
+        tipoPlan: (existingClient.plan_tier as FormState['tipoPlan']) || 'basico',
+        fechaInicio: existingClient.fecha_inicio || '',
+        estadoPago: (existingClient.estado_pago as FormState['estadoPago']) || 'pagado',
+        peso: existingClient.peso_inicial != null ? String(existingClient.peso_inicial) : '',
+        altura: existingClient.altura != null ? String(existingClient.altura) : '',
+        grasaCorporal: existingClient.grasa_corporal != null ? String(existingClient.grasa_corporal) : '',
+        experiencia: (existingClient.experiencia?.toLowerCase() as FormState['experiencia']) || 'principiante',
+        objetivo: existingClient.objetivo || '',
+        historialMedico: existingClient.historial_medico || '',
+        consideraciones: existingClient.consideraciones || '',
+      })
+    }
+  }, [existingClient])
+
+  const isSubmitting = createClient.isPending || updateClient.isPending
 
   const validate = (state: FormState): FormErrors => {
     const errs: FormErrors = {}
@@ -136,7 +172,7 @@ export default function NuevoClientePage() {
     }
 
     if (!user) {
-      setSubmitError('Debes haber iniciado sesión como entrenador para registrar un cliente.')
+      setSubmitError('Debes haber iniciado sesión como entrenador para registrar o editar un cliente.')
       return
     }
 
@@ -146,38 +182,122 @@ export default function NuevoClientePage() {
       avanzado: 'Avanzado',
     }
 
+    const clientPayload = {
+      nombre: form.nombre.trim().split(' ')[0] || form.nombre.trim(),
+      apellido: form.nombre.trim().split(' ').slice(1).join(' ') || '',
+      email: form.email.trim().toLowerCase(),
+      telefono: form.telefono.trim() || null,
+      fecha_nacimiento: form.fechaNacimiento || null,
+      plan_tier: form.tipoPlan,
+      fecha_inicio: form.fechaInicio || new Date().toISOString().split('T')[0],
+      estado_pago: form.estadoPago,
+      peso_inicial: form.peso ? parseFloat(form.peso) : null,
+      altura: form.altura ? parseFloat(form.altura) : null,
+      grasa_corporal: form.grasaCorporal ? parseFloat(form.grasaCorporal) : null,
+      experiencia: expMapping[form.experiencia] ?? 'Principiante',
+      objetivo: form.objetivo.trim() || null,
+      historial_medico: form.historialMedico.trim() || null,
+      consideraciones: form.consideraciones.trim() || null,
+    }
+
     try {
-      await createClient.mutateAsync({
-        nombre: form.nombre.split(' ')[0] || form.nombre,
-        apellido: form.nombre.split(' ').slice(1).join(' ') || '',
-        email: form.email.trim().toLowerCase(),
-        telefono: form.telefono.trim() || null,
-        fecha_nacimiento: form.fechaNacimiento || null,
-        plan_tier: form.tipoPlan,
-        fecha_inicio: form.fechaInicio || new Date().toISOString().split('T')[0],
-        estado_pago: form.estadoPago,
-        peso_inicial: form.peso ? parseFloat(form.peso) : null,
-        altura: form.altura ? parseFloat(form.altura) : null,
-        grasa_corporal: form.grasaCorporal ? parseFloat(form.grasaCorporal) : null,
-        experiencia: expMapping[form.experiencia] ?? 'Principiante',
-        objetivo: form.objetivo.trim() || null,
-        historial_medico: form.historialMedico.trim() || null,
-        consideraciones: form.consideraciones.trim() || null,
-        trainer_id: user.id, // Authenticated trainer ID
-      })
+      if (isEdit && id) {
+        await updateClient.mutateAsync({
+          id,
+          data: clientPayload,
+        })
+      } else {
+        await createClient.mutateAsync({
+          ...clientPayload,
+          trainer_id: user.id, // Authenticated trainer ID
+        })
+      }
       navigate('/admin/clientes')
     } catch (err: unknown) {
-      console.error('Error creating client:', err)
+      console.error(isEdit ? 'Error updating client:' : 'Error creating client:', err)
       const message = err instanceof Error ? err.message : String(err)
-      setSubmitError(message || 'Error al guardar el cliente en Supabase.')
+      setSubmitError(message || `Error al ${isEdit ? 'actualizar' : 'guardar'} el cliente en Supabase.`)
     }
+  }
+
+  const handleDelete = async () => {
+    if (!id) return
+    try {
+      await deleteClient.mutateAsync(id)
+      navigate('/admin/clientes')
+    } catch (err: unknown) {
+      console.error('Error deleting client:', err)
+      const message = err instanceof Error ? err.message : String(err)
+      setSubmitError(message || 'Error al eliminar el cliente.')
+      setShowDeleteModal(false)
+    }
+  }
+
+  if (isEdit && isLoadingClient) {
+    return (
+      <div className="nuevo-cliente-page">
+        <div className="page-header page-header--border">
+          <h1 className="page-header__title">Cargando Cliente...</h1>
+        </div>
+        <div style={{ padding: '24px' }}>
+          <LoadingSkeleton count={4} variant="card" />
+        </div>
+      </div>
+    )
+  }
+
+  if (isEdit && clientFetchError) {
+    return (
+      <div className="nuevo-cliente-page">
+        <div className="page-header page-header--border">
+          <h1 className="page-header__title">Editar Cliente</h1>
+        </div>
+        <div style={{ padding: '24px' }}>
+          <ErrorState
+            message={clientFetchError.message || 'No se pudo cargar la información del cliente.'}
+            onRetry={() => navigate('/admin/clientes')}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="nuevo-cliente-page">
       {/* Header */}
-      <div className="page-header page-header--border">
-        <h1 className="page-header__title">Añadir Nuevo Cliente</h1>
+      <div className="page-header page-header--border" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            type="button"
+            className="icon-action-btn"
+            title="Volver"
+            onClick={() => navigate('/admin/clientes')}
+          >
+            <ArrowLeft size={16} strokeWidth={1.5} />
+          </button>
+          <div>
+            <h1 className="page-header__title">
+              {isEdit ? 'Editar Cliente' : 'Añadir Nuevo Cliente'}
+            </h1>
+            {isEdit && existingClient && (
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-dusty-blue)' }}>
+                {existingClient.nombre} {existingClient.apellido}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {isEdit && (
+          <button
+            type="button"
+            className="btn-danger-outline"
+            onClick={() => setShowDeleteModal(true)}
+            disabled={isSubmitting || deleteClient.isPending}
+          >
+            <Trash2 size={16} strokeWidth={1.5} />
+            Eliminar Cliente
+          </button>
+        )}
       </div>
 
       {submitError && (
@@ -451,20 +571,67 @@ export default function NuevoClientePage() {
         </div>
 
         {/* Footer actions */}
-        <div className="form-footer">
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => navigate('/admin/clientes')}
-          >
-            Cancelar
-          </button>
-          <button type="submit" className="btn-primary" disabled={createClient.isPending}>
-            {createClient.isPending ? 'Guardando...' : 'Guardar Cliente'}
-          </button>
+        <div className={`form-footer ${isEdit ? 'form-footer--split' : ''}`}>
+          {isEdit && (
+            <button
+              type="button"
+              className="btn-danger-outline"
+              onClick={() => setShowDeleteModal(true)}
+              disabled={isSubmitting || deleteClient.isPending}
+            >
+              <Trash2 size={16} strokeWidth={1.5} />
+              Eliminar Cliente
+            </button>
+          )}
+          <div className="form-footer__right">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => navigate('/admin/clientes')}
+              disabled={isSubmitting || deleteClient.isPending}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={isSubmitting || deleteClient.isPending}
+            >
+              {isSubmitting
+                ? isEdit
+                  ? 'Guardando cambios...'
+                  : 'Guardando...'
+                : isEdit
+                  ? 'Guardar Cambios'
+                  : 'Guardar Cliente'}
+            </button>
+          </div>
         </div>
 
       </form>
+
+      {/* Modal de confirmación para eliminar cliente */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Eliminar Cliente"
+        variant="danger"
+        confirmText="Eliminar Cliente"
+        cancelText="Cancelar"
+        isLoading={deleteClient.isPending}
+        onConfirm={handleDelete}
+        onClose={() => setShowDeleteModal(false)}
+        description={
+          existingClient ? (
+            <p>
+              ¿Estás seguro de que deseas eliminar permanentemente a{' '}
+              <strong>{existingClient.nombre} {existingClient.apellido}</strong>?
+              Esta acción no se puede deshacer y borrará su información asociada.
+            </p>
+          ) : (
+            '¿Estás seguro de que deseas eliminar a este cliente permanentemente?'
+          )
+        }
+      />
     </div>
   )
 }

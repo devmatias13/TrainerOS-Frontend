@@ -146,16 +146,64 @@ select.form-input { cursor: pointer; appearance: auto; }
   padding-top: 8px;
 }
 
+.form-footer--split {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-footer__right {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-danger-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: transparent;
+  color: var(--color-error, #ba1a1a);
+  border: 1px solid rgba(186, 26, 26, 0.35);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-danger-outline:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: var(--color-error, #ba1a1a);
+  color: #991b1b;
+}
+
+.btn-danger-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* On mobile: stack buttons full-width, primary on top (per mockup) */
 @media (max-width: 767px) {
   .form-footer {
     flex-direction: column-reverse;
     gap: 10px;
   }
+  .form-footer--split {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  .form-footer__right {
+    width: 100%;
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
   .form-footer .btn-primary,
-  .form-footer .btn-secondary {
+  .form-footer .btn-secondary,
+  .btn-danger-outline {
     width: 100%;
     justify-content: center;
     padding: 13px 16px;
   }
 }
+

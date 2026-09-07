@@ -36,6 +36,7 @@ const router = createBrowserRouter([
       { path: 'dashboard',                            element: <DashboardPage /> },
       { path: 'clientes',                             element: <ClientesPage /> },
       { path: 'clientes/nuevo',                       element: <NuevoClientePage /> },
+      { path: 'clientes/:id/editar',                  element: <NuevoClientePage /> },
       { path: 'entrenamientos',                       element: <EntrenamientosPage /> },
       { path: 'entrenamientos/rutinas/nueva',         element: <ArmarRutinaPage /> },
       { path: 'entrenamientos/ejercicios',            element: <ExerciseBankPage /> },
