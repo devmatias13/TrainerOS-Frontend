@@ -159,7 +159,7 @@ export function useCreateFullRoutine() {
         if (blocksError) throw blocksError
 
         // 3. Create Exercises
-        const exercisesToInsert: any[] = []
+        const exercisesToInsert: InsertTables<'routine_block_exercises'>[] = []
         
         insertedBlocks.forEach((insertedBlock, i) => {
           const originalBlock = blocks[i]

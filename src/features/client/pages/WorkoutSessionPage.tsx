@@ -50,6 +50,7 @@ export default function WorkoutSessionPage() {
           })
         })
       })
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExercises(routineExercises)
     } else if (!loadingRoutine && !dbRoutine) {
       setExercises(mockSession.ejercicios.map(e => ({ ...e })))

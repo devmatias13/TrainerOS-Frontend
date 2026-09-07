@@ -98,6 +98,7 @@ export default function NuevoClientePage() {
   useEffect(() => {
     if (existingClient) {
       const fullName = [existingClient.nombre, existingClient.apellido].filter(Boolean).join(' ')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm({
         nombre: fullName,
         email: existingClient.email || '',
