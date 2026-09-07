@@ -3,33 +3,33 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: var(--color-deep-navy);
+  background: #0a1520;
   color: #ffffff;
   max-width: 480px;
   margin: 0 auto;
   position: relative;
 }
 
-/* ── Video Area ── */
+/* ── Video Area — fullscreen top section matching mockup ── */
 .ed-video-area {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: linear-gradient(160deg, #0c1e33 0%, #060f1b 100%);
+  background: linear-gradient(180deg, #0d1e33 0%, #060f1b 100%);
   overflow: hidden;
   flex-shrink: 0;
 }
 
 .ed-back-btn {
   position: absolute;
-  top: 14px;
-  left: 14px;
+  top: 16px;
+  left: 16px;
   z-index: 10;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   cursor: pointer;
   color: rgba(255, 255, 255, 0.85);
   display: flex;
@@ -38,7 +38,7 @@
   transition: background 0.15s;
 }
 
-.ed-back-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.ed-back-btn:hover { background: rgba(255, 255, 255, 0.22); }
 
 /* Video placeholder */
 .ed-video-placeholder {
@@ -49,12 +49,13 @@
   justify-content: center;
 }
 
+/* Play button — matches mockup (large hollow circle) */
 .ed-video-play-btn {
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,38 +64,34 @@
 }
 
 .ed-video-play-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.24);
   transform: scale(1.06);
 }
 
-/* Timer badge */
+/* Timer badge — bottom-right of video */
 .ed-timer-badge {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  bottom: 14px;
+  right: 14px;
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 10px;
-  background: rgba(0, 0, 0, 0.55);
-  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(4px);
   transition: color 0.3s;
+  letter-spacing: 0.02em;
 }
 
-.ed-timer-badge--running {
-  color: #86efac;
-}
+.ed-timer-badge--running { color: #86efac; }
+.ed-timer-badge svg { flex-shrink: 0; }
 
-.ed-timer-badge svg {
-  flex-shrink: 0;
-}
-
-/* ── Content ── */
+/* ── Scrollable Content ── */
 .ed-content {
   flex: 1;
   overflow-y: auto;
@@ -104,7 +101,7 @@
   gap: 16px;
 }
 
-/* Chips */
+/* Chips — matches mockup style */
 .ed-chips {
   display: flex;
   gap: 8px;
@@ -112,57 +109,55 @@
 }
 
 .ed-chip {
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ed-chip--fuerza {
-  background: rgba(28, 46, 74, 0.8);
+  background: rgba(28, 46, 74, 0.85);
   color: #b5c7ea;
-  border-color: rgba(28, 46, 74, 0.5);
+  border-color: rgba(82, 103, 125, 0.4);
 }
 
 .ed-chip--hipertrofia {
-  background: rgba(75, 96, 118, 0.4);
+  background: rgba(75, 96, 118, 0.35);
   color: #a8bdd4;
   border-color: rgba(75, 96, 118, 0.4);
 }
 
 .ed-chip--resistencia {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.12);
   color: #86efac;
   border-color: rgba(34, 197, 94, 0.2);
 }
 
-/* Title & Meta */
+/* Title & Meta — matches mockup */
 .ed-exercise-name {
   font-family: var(--font-display);
   font-size: 24px;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.25;
   margin: 0;
 }
 
 .ed-meta {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin: -8px 0 0;
+  margin: -4px 0 0;
 }
 
-.ed-meta__dot {
-  color: rgba(255, 255, 255, 0.3);
-}
+.ed-meta__dot { color: rgba(255, 255, 255, 0.25); }
 
 /* Sets progress dots */
 .ed-sets-progress {
@@ -176,41 +171,41 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
   transition: background 0.25s, border-color 0.25s;
   flex-shrink: 0;
 }
 
 .ed-set-dot--done {
-  background: rgba(82, 103, 125, 0.85);
-  border-color: rgba(82, 103, 125, 0.85);
+  background: #1c2e4a;
+  border-color: rgba(82, 103, 125, 0.9);
 }
 
 .ed-sets-text {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
   margin-left: 4px;
 }
 
-/* Trainer Notes Card */
+/* ── Trainer Notes Card — matches mockup ── */
 .ed-notes-card {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 18px;
 }
 
 .ed-notes-card__header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .ed-notes-card__dot {
   font-size: 22px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.45);
   line-height: 1;
 }
 
@@ -226,8 +221,9 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   padding: 0;
+  margin: 0;
 }
 
 .ed-notes-item {
@@ -235,8 +231,8 @@
   align-items: flex-start;
   gap: 10px;
   font-size: 14px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .ed-notes-item__icon {
@@ -250,20 +246,21 @@
   position: sticky;
   bottom: 0;
   z-index: 30;
-  padding: 12px 16px 28px;
-  background: linear-gradient(to top, rgba(15, 26, 43, 1) 60%, transparent);
+  padding: 12px 16px 32px;
+  background: linear-gradient(to top, #0a1520 60%, transparent);
 }
 
+/* "Serie Completada" button — matches mockup: dark navy with checkmark */
 .ed-footer__btn {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 16px;
-  border-radius: var(--radius-sm);
+  padding: 18px;
+  border-radius: 12px;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -271,9 +268,9 @@
 }
 
 .ed-footer__btn--complete {
-  background: var(--color-midnight-blue);
+  background: #1c2e4a;
   color: #ffffff;
-  box-shadow: 0 4px 20px rgba(28, 46, 74, 0.5);
+  box-shadow: 0 4px 24px rgba(28, 46, 74, 0.55);
 }
 
 .ed-footer__btn--complete:hover {
@@ -283,25 +280,25 @@
 
 .ed-footer__sets-badge {
   margin-left: auto;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-sm);
-  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 3px 10px;
   font-size: 13px;
   font-weight: 600;
 }
 
 .ed-footer__btn--next {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.28);
   color: #86efac;
-  font-size: 14px;
+  font-size: 15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .ed-footer__btn--next:hover {
-  background: rgba(34, 197, 94, 0.22);
+  background: rgba(34, 197, 94, 0.2);
   transform: translateY(-1px);
 }
 

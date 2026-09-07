@@ -17,16 +17,27 @@ export default function WeightLogger({
   const [pesoInput, setPesoInput] = useState(targetKg?.toString() ?? '')
   const [justCompleted, setJustCompleted] = useState(false)
 
-  const remaining = setsTotal - setsCompleted
-  const isDone = remaining === 0
+  const isDone = setsCompleted >= setsTotal
 
   const handleComplete = () => {
     const kg = parseFloat(pesoInput)
     if (isNaN(kg) || kg <= 0) return
     onSetComplete(kg)
-    // Animate check
     setJustCompleted(true)
-    setTimeout(() => setJustCompleted(false), 800)
+    setTimeout(() => setJustCompleted(false), 600)
+  }
+
+  if (isDone) {
+    return (
+      <div className="weight-logger">
+        <div className="weight-logger__done-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          <span>Todas las series completadas con {pesoInput}kg</span>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -42,56 +53,44 @@ export default function WeightLogger({
             />
           ))}
         </div>
-        <span className="weight-logger__sets-count">
-          {isDone ? '✓ Completado' : `${setsCompleted}/${setsTotal}`}
-        </span>
+        <span className="weight-logger__sets-count">{setsCompleted}/{setsTotal}</span>
       </div>
 
-      {/* Input row */}
-      {!isDone && (
-        <div className="weight-logger__input-row">
-          <div className="weight-logger__input-wrap">
-            <input
-              id={`peso-input-${setsCompleted}`}
-              className="weight-logger__input"
-              type="number"
-              inputMode="decimal"
-              placeholder="Peso"
-              value={pesoInput}
-              onChange={e => setPesoInput(e.target.value)}
-              onFocus={e => e.target.select()}
-              aria-label="Peso en kilogramos"
-            />
-            <span className="weight-logger__unit">kg</span>
-          </div>
-
-          {targetKg && (
-            <span className="weight-logger__objective">
-              Objetivo: {targetKg}kg
-            </span>
-          )}
-
-          <button
-            className={`weight-logger__check-btn${justCompleted ? ' weight-logger__check-btn--flash' : ''}`}
-            onClick={handleComplete}
-            aria-label="Marcar serie como completada"
-            disabled={!pesoInput || parseFloat(pesoInput) <= 0}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </button>
+      {/* Objetivo label */}
+      {targetKg && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <span className="weight-logger__objective">Objetivo: {targetKg}kg</span>
         </div>
       )}
 
-      {isDone && (
-        <div className="weight-logger__done-row">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      {/* Input + check row — matches mockup */}
+      <div className="weight-logger__input-row">
+        <div className="weight-logger__input-wrap">
+          <input
+            id={`peso-input-${setsCompleted}`}
+            className="weight-logger__input"
+            type="number"
+            inputMode="decimal"
+            placeholder="Peso"
+            value={pesoInput}
+            onChange={e => setPesoInput(e.target.value)}
+            onFocus={e => e.target.select()}
+            aria-label="Peso en kilogramos"
+          />
+          <span className="weight-logger__unit">kg</span>
+        </div>
+
+        <button
+          className={`weight-logger__check-btn${justCompleted ? ' weight-logger__check-btn--flash' : ''}`}
+          onClick={handleComplete}
+          aria-label="Marcar serie como completada"
+          disabled={!pesoInput || parseFloat(pesoInput) <= 0}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          <span>Todas las series completadas con {pesoInput}kg</span>
-        </div>
-      )}
+        </button>
+      </div>
     </div>
   )
 }

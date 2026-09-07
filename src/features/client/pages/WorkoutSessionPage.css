@@ -3,30 +3,29 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: var(--color-deep-navy);
+  background: #0a1520;
   color: #ffffff;
   max-width: 480px;
   margin: 0 auto;
   position: relative;
 }
 
-/* ── Header ── */
+/* ── Header — matches mockup: ← title avatar ── */
 .ws-header {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(15, 26, 43, 0.95);
+  background: rgba(10, 21, 32, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding-bottom: 0;
 }
 
 .ws-header__inner {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px 10px;
+  padding: 16px 16px 12px;
 }
 
 .ws-header__back {
@@ -38,7 +37,7 @@
   align-items: center;
   justify-content: center;
   padding: 6px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   flex-shrink: 0;
   transition: color 0.15s;
 }
@@ -48,6 +47,7 @@
 .ws-header__info {
   flex: 1;
   min-width: 0;
+  text-align: center;
 }
 
 .ws-header__title {
@@ -63,17 +63,17 @@
 
 .ws-header__date {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.45);
-  margin: 0;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 1px 0 0;
   text-transform: capitalize;
 }
 
-/* Avatar */
+/* Avatar — matches mockup (circular, dark blue) */
 .ws-header__avatar {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--color-midnight-blue);
+  background: #1c2e4a;
   border: 2px solid rgba(82, 103, 125, 0.6);
   display: flex;
   align-items: center;
@@ -89,45 +89,45 @@
 /* Progress bar */
 .ws-header__progress-bar {
   height: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  margin: 0 16px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0;
 }
 
 .ws-header__progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-dusty-blue), var(--color-midnight-blue));
+  background: linear-gradient(90deg, #1c2e4a, #52677d);
   border-radius: 2px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .ws-header__progress-label {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
   text-align: right;
-  padding: 4px 16px 8px;
+  padding: 4px 16px 6px;
   margin: 0;
 }
 
 /* ── Content ── */
 .ws-content {
   flex: 1;
-  padding: 12px 16px 0;
+  padding: 16px 16px 0;
 }
 
 .ws-exercises {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-bottom: 100px; /* space for sticky footer */
+  gap: 20px;
+  padding-bottom: 110px; /* space for sticky footer */
 }
 
-/* ── Footer ── */
+/* ── Footer — matches mockup: "Finalizar Sesión ✓" ── */
 .ws-footer {
   position: sticky;
   bottom: 0;
   z-index: 30;
-  padding: 12px 16px 28px;
-  background: linear-gradient(to top, rgba(15, 26, 43, 1) 60%, transparent);
+  padding: 12px 16px 32px;
+  background: linear-gradient(to top, #0a1520 60%, transparent);
 }
 
 .ws-footer__btn {
@@ -136,29 +136,30 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-sm);
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
   cursor: pointer;
   transition: all 0.2s;
 }
 
+/* When all done — matches mockup dark active state */
 .ws-footer__btn--ready {
-  background: var(--color-midnight-blue);
-  border-color: var(--color-midnight-blue);
+  background: #1c2e4a;
+  border-color: rgba(82, 103, 125, 0.6);
   color: #ffffff;
-  box-shadow: 0 4px 20px rgba(28, 46, 74, 0.5);
+  box-shadow: 0 4px 24px rgba(28, 46, 74, 0.5);
   animation: pulse-ready 2.5s ease infinite;
 }
 
 @keyframes pulse-ready {
-  0%, 100% { box-shadow: 0 4px 20px rgba(28, 46, 74, 0.5); }
-  50% { box-shadow: 0 4px 28px rgba(28, 46, 74, 0.8); }
+  0%, 100% { box-shadow: 0 4px 24px rgba(28, 46, 74, 0.5); }
+  50% { box-shadow: 0 6px 32px rgba(28, 46, 74, 0.75); }
 }
 
 .ws-footer__btn--ready:hover {
