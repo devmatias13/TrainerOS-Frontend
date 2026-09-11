@@ -62,7 +62,8 @@ export function parseVideoUrl(inputUrl?: string | null): ParsedVideo {
   const ytMatch = url.match(ytRegex)
   if (ytMatch && ytMatch[1]) {
     const videoId = ytMatch[1]
-    const isShorts = /[\/\.]shorts\//i.test(url)
+    const lower = url.toLowerCase()
+    const isShorts = lower.includes('/shorts/') || lower.includes('.shorts/')
     return {
       type: 'youtube',
       // YouTube-nocookie for privacy and reliable iframe loading
@@ -75,7 +76,10 @@ export function parseVideoUrl(inputUrl?: string | null): ParsedVideo {
   }
 
   // 2. Vimeo Matcher
-  const vimeoRegex = /(?:vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)|player\.vimeo\.com\/video\/(\d+))/i
+  const vimeoRegex = new RegExp(
+    '(?:vimeo\\.com/(?:channels/(?:\\w+/)?|groups/([^/]*)/videos/|album/(\\d+)/video/|)(\\d+)|player\\.vimeo\\.com/video/(\\d+))',
+    'i'
+  )
   const vimeoMatch = url.match(vimeoRegex)
   const vimeoId = vimeoMatch ? (vimeoMatch[3] || vimeoMatch[4]) : null
   if (vimeoId) {
