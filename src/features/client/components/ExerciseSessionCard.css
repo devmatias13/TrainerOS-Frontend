@@ -1,16 +1,20 @@
 /* ─── Exercise Session Card ─────────────────────────────────────────── */
+/* Design tokens: DESIGNGlobal.md */
+
 .ex-session-card {
-  background: var(--color-deep-navy, #0f1a2b);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  background: rgba(28, 46, 74, 0.18);
+  border: 1px solid rgba(82, 103, 125, 0.22);  /* Dusty Blue at ~20% */
+  border-radius: 8px;                            /* DESIGNGlobal: lg = 8px */
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(10, 21, 32, 0.3);
 }
 
 .ex-session-card--done {
-  border-color: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.03);
 }
 
 /* ── Header ── */
@@ -19,39 +23,52 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 18px 18px 14px;
+  padding: 16px 16px 12px;
 }
 
 .ex-session-card__numbering {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
 }
 
 .ex-session-card__number {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.35);
-  font-weight: 500;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 10px;
+  color: rgba(189, 196, 212, 0.7);             /* Ivory tint */
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .ex-session-card__name {
-  font-family: var(--font-display);
-  font-size: 20px;
+  font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
+.ex-session-card__muscle {
+  font-size: 11px;
+  color: rgba(82, 103, 125, 0.9);
+  font-weight: 500;
+}
+
+/* Chips — DESIGNGlobal: 4px radius */
 .ex-session-card__chip {
   flex-shrink: 0;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
+  text-transform: uppercase;
 }
 
 .ex-session-card__chip--fuerza {
@@ -62,7 +79,7 @@
 
 .ex-session-card__chip--hipertrofia {
   background: rgba(75, 96, 118, 0.35);
-  color: #a8bdd4;
+  color: #cfe5ff;
   border: 1px solid rgba(75, 96, 118, 0.4);
 }
 
@@ -78,117 +95,247 @@
   border: 1px solid rgba(168, 85, 247, 0.25);
 }
 
-/* ── Media (video placeholder) ── */
-.ex-session-card__media {
+/* ── Media Container ── */
+.ex-session-card__media-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-top: 1px solid rgba(82, 103, 125, 0.15);
+  border-bottom: 1px solid rgba(82, 103, 125, 0.15);
+}
+
+/* ── Inline Video Player ── */
+.ex-session-card__player-wrapper {
   position: relative;
   width: 100%;
-  height: 180px;
-  background: linear-gradient(160deg, #0c1e33 0%, #060f1b 100%);
-  cursor: pointer;
+  aspect-ratio: 16 / 9;
+  background: #000000;
   overflow: hidden;
 }
 
-.ex-session-card__media-inner {
+.ex-session-card__iframe,
+.ex-session-card__native-video {
   width: 100%;
   height: 100%;
+  border: none;
+  display: block;
+  object-fit: cover;
+}
+
+.ex-session-card__close-video {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 15;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: rgba(15, 26, 43, 0.88);
+  border: 1px solid rgba(82, 103, 125, 0.4);
+  border-radius: 4px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ex-session-card__close-video:hover {
+  background: #1c2e4a;
+  border-color: #52677d;
+}
+
+/* ── Media Trigger / Thumbnail Area ── */
+.ex-session-card__media {
+  position: relative;
+  width: 100%;
+  height: 170px;
+  background: #081320;
+  cursor: pointer;
+  overflow: hidden;
+  user-select: none;
+}
+
+.ex-session-card__media--has-video {
+  background: #0a1829;
+}
+
+/* Real YouTube thumbnail */
+.ex-session-card__video-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.65;
+  transition: opacity 0.25s, transform 0.3s;
+}
+
+.ex-session-card__media:hover .ex-session-card__video-thumb {
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+/* Semi-transparent overlay to ensure contrast without blanketing the image */
+.ex-session-card__media-inner {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 26, 43, 0.35) 0%,
+    rgba(8, 16, 28, 0.75) 100%
+  );
   transition: background 0.2s;
 }
 
 .ex-session-card__media:hover .ex-session-card__media-inner {
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(
+    180deg,
+    rgba(28, 46, 74, 0.3) 0%,
+    rgba(10, 20, 35, 0.8) 100%
+  );
 }
 
+/* Play button */
 .ex-session-card__play-circle {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(28, 46, 74, 0.85);
+  border: 1.5px solid rgba(189, 196, 212, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
 }
 
 .ex-session-card__media:hover .ex-session-card__play-circle {
-  background: rgba(255, 255, 255, 0.22);
-  transform: scale(1.06);
+  background: #1C2E4A;
+  border-color: #ffffff;
+  transform: scale(1.08);
+}
+
+.ex-session-card__placeholder-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: rgba(82, 103, 125, 0.12);
+  border: 1px solid rgba(82, 103, 125, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ex-session-card__media-hint {
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 500;
+  color: #ffffff;
+  font-weight: 600;
   letter-spacing: 0.02em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* ── Metrics grid — matches mockup exactly ── */
+/* Action bar below media */
+.ex-session-card__actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 14px;
+  background: rgba(10, 20, 32, 0.6);
+  border-top: 1px solid rgba(82, 103, 125, 0.12);
+}
+
+.ex-session-card__detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: rgba(189, 196, 212, 0.8);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.ex-session-card__detail-link:hover {
+  color: #ffffff;
+  background: rgba(82, 103, 125, 0.18);
+}
+
+/* ── Metrics: SERIES | REPS | DESCANSO ── */
 .ex-session-card__metrics {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(82, 103, 125, 0.12);
+  background: rgba(15, 26, 43, 0.25);
 }
 
 .ex-session-card__metric {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 12px;
-  gap: 4px;
-}
-
-.ex-session-card__metric:first-child {
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  gap: 2px;
+  text-align: center;
 }
 
 .ex-session-card__metric-label {
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(82, 103, 125, 0.85);
+  letter-spacing: 0.06em;
 }
 
 .ex-session-card__metric-value {
-  font-family: var(--font-display);
-  font-size: 28px;
+  font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
-/* ── Logger section ── */
+/* ── Weight Logger ── */
 .ex-session-card__logger {
-  padding: 0 18px 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  padding-top: 14px;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .ex-session-card__logger-meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  justify-content: space-between;
 }
 
 .ex-session-card__logger-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0 0 10px;
+  color: rgba(82, 103, 125, 0.8);
+  margin: 0;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .ex-session-card__logger-objective {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-/* ── Done overlay ── */
-.ex-session-card--done .ex-session-card__media {
-  opacity: 0.55;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(181, 199, 234, 0.85);
 }

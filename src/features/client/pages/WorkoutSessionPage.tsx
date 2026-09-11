@@ -44,7 +44,7 @@ export default function WorkoutSessionPage() {
             reps: rbe.reps ?? '10-12',
             descanso: rbe.rest_seconds ?? 60,
             instrucciones: exInfo?.instrucciones ?? (rbe.notes ? [rbe.notes] : []),
-            videoUrl: exInfo?.video_url ?? undefined,
+            videoUrl: exInfo?.video_url || undefined,  // null → undefined; '' → undefined
             historialPesos: [],
             setsCompletados: 0,
           })

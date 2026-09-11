@@ -14,6 +14,7 @@ import ClientLayout from '../features/client/components/ClientLayout'
 import ClientDashboard from '../features/client/pages/ClientDashboard'
 import WorkoutSessionPage from '../features/client/pages/WorkoutSessionPage'
 import ExerciseDetailPage from '../features/client/pages/ExerciseDetailPage'
+import NotFoundPage from './NotFoundPage'
 
 const router = createBrowserRouter([
   {
@@ -71,6 +72,11 @@ const router = createBrowserRouter([
         element: <ExerciseDetailPage />,
       },
     ],
+  },
+  // ── 404 — catch all unmatched routes ──
+  {
+    path: '*',
+    element: <NotFoundPage />,
   },
 ])
 
