@@ -81,7 +81,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Retrae las escápulas antes de sacar la barra. Pecho arriba.',
           'Baja la barra de forma controlada hasta tocar el esternón (2 segundos bajada, 1 segundo subida).',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=vcBig73ojpE',
         historialPesos: [
           { fecha: '2026-07-25', kg: 60 },
           { fecha: '2026-08-01', kg: 62.5 },
@@ -106,7 +106,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Sube las mancuernas en un arco controlado hasta extender los brazos.',
           'Baja hasta que los codos estén a 90° o ligeramente más abajo.',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=qEwKCR5JCog',
         historialPesos: [
           { fecha: '2026-07-25', kg: 16 },
           { fecha: '2026-08-01', kg: 18 },
@@ -131,7 +131,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Con los codos ligeramente flexionados, junta las manos frente al pecho.',
           'Mantén la contracción 1 segundo antes de regresar.',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=taI4XduLpTk',
         historialPesos: [
           { fecha: '2026-07-25', kg: 10 },
           { fecha: '2026-08-01', kg: 10 },
@@ -156,7 +156,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Extiende completamente los brazos sin mover los hombros.',
           'Regresa de forma controlada sin dejar caer el peso.',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=2-LAMcpzODU',
         historialPesos: [
           { fecha: '2026-07-25', kg: 12 },
           { fecha: '2026-08-01', kg: 15 },
@@ -181,7 +181,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Eleva los brazos hasta la altura de los hombros.',
           'Baja de forma controlada en 2-3 segundos.',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=3VcKaXpzqRo',
         historialPesos: [
           { fecha: '2026-07-25', kg: 6 },
           { fecha: '2026-08-01', kg: 7 },
@@ -215,7 +215,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Agarra la barra con agarre prono, separación mayor al ancho de hombros.',
           'Jala la barra hacia la clavícula, contrayendo los dorsales.',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=CAwf7n6Luuc',
         historialPesos: [
           { fecha: '2026-07-26', kg: 55 },
           { fecha: '2026-08-02', kg: 57.5 },
@@ -240,7 +240,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Sube la barra en 1 segundo, baja en 3 segundos (fase excéntrica).',
           'Evita balancear el torso.',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=ykJmrZ5v0Oo',
         historialPesos: [
           { fecha: '2026-07-26', kg: 20 },
           { fecha: '2026-08-02', kg: 22.5 },
@@ -274,7 +274,7 @@ export const MOCK_SESSIONS: WorkoutSession[] = [
           'Desciende hasta que los muslos estén paralelos al suelo.',
           'Empuja el suelo con los talones al subir.',
         ],
-        videoUrl: '',
+        videoUrl: 'https://www.youtube.com/watch?v=bEv6CCg2BC8',
         historialPesos: [
           { fecha: '2026-07-27', kg: 75 },
           { fecha: '2026-08-03', kg: 80 },

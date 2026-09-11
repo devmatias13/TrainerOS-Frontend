@@ -206,9 +206,40 @@
 
 .client-card__actions {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  padding-top: 4px;
+  padding-top: 8px;
   border-top: 1px solid var(--color-outline-var);
+}
+
+.client-card__actions-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.client-card__routines-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-midnight-blue, #1C2E4A);
+  border: 1px solid rgba(82, 103, 125, 0.35);
+  border-radius: var(--radius-md, 6px);
+  color: #ffffff;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.client-card__routines-btn:hover {
+  background: #253d5f;
+  border-color: #52677d;
+  transform: translateY(-1px);
 }
 
 .icon-action-btn {

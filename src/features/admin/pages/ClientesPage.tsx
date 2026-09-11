@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserPlus, UserCircle, Pencil, Trash2, AlertCircle, Link2 } from 'lucide-react'
+import { UserPlus, UserCircle, Pencil, Trash2, AlertCircle, Link2, Dumbbell } from 'lucide-react'
 import { useClients, useDeleteClient, type ClientRow } from '../hooks/useClients'
 import LoadingSkeleton from '../../../components/LoadingSkeleton'
 import ErrorState from '../../../components/ErrorState'
 import EmptyState from '../../../components/EmptyState'
 import ConfirmModal from '../../../components/ConfirmModal'
+import AssignRoutineModal from '../components/AssignRoutineModal'
 import './ClientesPage.css'
 
 type Tab = 'todos' | 'activos' | 'pendientes' | 'vencer'
@@ -37,6 +38,7 @@ export default function ClientesPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<Tab>('todos')
   const [clientToDelete, setClientToDelete] = useState<ClientRow | null>(null)
+  const [clientForRoutines, setClientForRoutines] = useState<ClientRow | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
 
   const { data: clients = [], isLoading, error, refetch } = useClients(activeTab)
@@ -181,27 +183,42 @@ export default function ClientesPage() {
               </div>
 
               <div className="client-card__actions" onClick={e => e.stopPropagation()}>
+                <div className="client-card__actions-left">
+                  <button
+                    className="icon-action-btn"
+                    title="Editar cliente"
+                    onClick={() => navigate(`/admin/clientes/${client.id}/editar`)}
+                  >
+                    <Pencil size={15} strokeWidth={1.5} />
+                  </button>
+                  <button
+                    className="icon-action-btn icon-action-btn--danger"
+                    title="Eliminar cliente"
+                    onClick={() => setClientToDelete(client)}
+                  >
+                    <Trash2 size={15} strokeWidth={1.5} />
+                  </button>
+                  <button
+                    className={`icon-action-btn${copiedClientId === client.id ? ' icon-action-btn--copied' : ''}`}
+                    title={copiedClientId === client.id ? '¡Copiado!' : 'Copiar link del alumno'}
+                    onClick={e => handleCopyClientLink(client.id, e)}
+                    aria-label="Copiar link del alumno"
+                  >
+                    <Link2 size={15} strokeWidth={1.5} />
+                  </button>
+                </div>
+
                 <button
-                  className="icon-action-btn"
-                  title="Editar cliente"
-                  onClick={() => navigate(`/admin/clientes/${client.id}/editar`)}
+                  className="client-card__routines-btn"
+                  title="Gestionar y asignar rutinas"
+                  onClick={e => {
+                    e.stopPropagation()
+                    setClientForRoutines(client)
+                  }}
+                  aria-label="Gestionar rutinas"
                 >
-                  <Pencil size={15} strokeWidth={1.5} />
-                </button>
-                <button
-                  className="icon-action-btn icon-action-btn--danger"
-                  title="Eliminar cliente"
-                  onClick={() => setClientToDelete(client)}
-                >
-                  <Trash2 size={15} strokeWidth={1.5} />
-                </button>
-                <button
-                  className={`icon-action-btn${copiedClientId === client.id ? ' icon-action-btn--copied' : ''}`}
-                  title={copiedClientId === client.id ? '¡Copiado!' : 'Copiar link del alumno'}
-                  onClick={e => handleCopyClientLink(client.id, e)}
-                  aria-label="Copiar link del alumno"
-                >
-                  <Link2 size={15} strokeWidth={1.5} />
+                  <Dumbbell size={13} strokeWidth={2} />
+                  <span>Rutinas</span>
                 </button>
               </div>
             </div>
@@ -228,6 +245,14 @@ export default function ClientesPage() {
             </p>
           ) : null
         }
+      />
+
+      {/* Modal para agregar y gestionar rutinas directamente */}
+      <AssignRoutineModal
+        isOpen={Boolean(clientForRoutines)}
+        clientId={clientForRoutines?.id ?? ''}
+        clientName={clientForRoutines ? `${clientForRoutines.nombre} ${clientForRoutines.apellido}` : ''}
+        onClose={() => setClientForRoutines(null)}
       />
     </div>
   )
