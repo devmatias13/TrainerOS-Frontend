@@ -1,113 +1,135 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
+
+/* ─── TrainerOS Design Tokens ─────────────────────────────────── */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Brand colors */
+  --color-midnight-blue:   #1C2E4A;
+  --color-deep-navy:       #0F1A2B;
+  --color-dusty-blue:      #52677D;
+  --color-ivory:           #BDC4D4;
+  --color-buttercream:     #D1CFC9;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Semantic colors */
+  --color-surface:         #fcf9f3;
+  --color-surface-low:     #f6f3ed;
+  --color-surface-card:    #f0eee7;
+  --color-on-surface:      #1b1c18;
+  --color-on-surface-var:  #44474d;
+  --color-outline:         #75777e;
+  --color-outline-var:     rgba(82, 103, 125, 0.2);
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  /* Status colors */
+  --color-success:         #22c55e;
+  --color-warning:         #f59e0b;
+  --color-error:           #ba1a1a;
+
+  /* Typography */
+  --font-display:          'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body:             'Inter', system-ui, sans-serif;
+
+  /* Spacing */
+  --grid-margin:           24px;
+  --grid-gutter:           16px;
+  --bento-gap:             12px;
+  --container-padding:     20px;
+
+  /* Radii */
+  --radius-sm:             4px;
+  --radius-md:             6px;
+  --radius-lg:             8px;
+
+  /* Shadows */
+  --shadow-overlay:        rgba(15, 26, 43, 0.08) 0 4px 16px 0;
+  --shadow-card:           rgba(15, 26, 43, 0.05) 0 1px 4px 0;
+}
+
+/* ─── Reset ────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-on-surface);
+  background: var(--color-buttercream);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
+/* Remove default Vite root constraints */
 #root {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
   margin: 0;
+  text-align: left;
+  border: none;
+  display: block;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* ─── Typography Utilities ──────────────────────────────────────── */
+.headline-lg {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+  color: var(--color-midnight-blue);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
+.headline-md {
+  font-family: var(--font-display);
   font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+  font-weight: 600;
+  line-height: 32px;
+  color: var(--color-midnight-blue);
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.headline-sm {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--color-midnight-blue);
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.data-display {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
 }
+
+.body-lg {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.body-md {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.label-md {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-ivory); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-dusty-blue); }
